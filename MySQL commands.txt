@@ -1,0 +1,69 @@
+CREATE USER 'user'@'localhost' 	IDENTIFIED BY 'password';
+
+
+GRANT ALL ON *.* TO 'user'@'localhost';
+
+CREATE database GiveNGetDB;
+
+USE GiveNGetDB;
+
+CREATE TABLE Items (
+ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+Name VARCHAR(100),
+Description VARCHAR(300),
+HideGiven INT,
+HideGotten INT,
+HideWithdrawn INT,
+GiverID INT,
+GetterID INT,
+State VARCHAR(10),
+Date VARCHAR(15));
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Clothes', 'A box of 10 shirts', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Clothes', 'A box of 20 shirts', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Saw', 'A 10 inch saw', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Computer', 'A Intel Computer and monitor', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Calculator', 'A scientific calculator', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Monitor', 'Dell Model 123', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Monitor', 'LG Model XYZ, 24 inche', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Clothes', 'A box of 10 shorts', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Bed Sheets', '3 Queen size bed sheets', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Shoes', 'A pair of size 10 shoes for men', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Bed Sheets', '3 king size bed sheets', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date)
+VALUES ('Shoes', 'A pair of size 12 shoes for men', 0, 0, 0, NULL, NULL, 'togive', '2022/06/22');
+
+-- to delete an item by item ID.
+DELETE FROM Items
+WHERE ID = 3;
+
+-- to see all items from table Items.
+SELECT * FROM Items LIMIT 0, 100;
+
+-- to update fields of an item. (choose the fields you want to update).
+UPDATE Items
+Set HideGiven = 0, HideGotten = 0, HideWithdrawn = 1, State = 'withdrawn'
+WHERE ID = 2;
+
