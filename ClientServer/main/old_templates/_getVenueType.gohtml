@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Venue Type Entry</title>
+</head>
+<body>
+{{if eq .PageType 1}}
+<h2>Browse Venue</h2>
+{{end}}
+<form method="post">
+    {{/* Select Venue Type */}}  
+    <b><label for ="venueType">Select Venue Type</label></b><br>  
+    {{$defVenueType := .DefVenueType}}
+    {{range $k, $v := .MapVenueType }}
+        {{if eq $k $defVenueType}}
+        <input type="radio" id="html" name="venueType" value="{{$k}}" checked>
+        <label for ="{{$v}}">{{$v}}</label><br>
+        {{else}}
+        <input type="radio" id="html" name="venueType" value="{{$k}}" >
+        <label for ="{{$v}}">{{$v}}</label><br>
+        {{end}}
+    {{end}}
+    <br>
+    <input type="submit">
+</form>
+<h2><a href="/">Back to Index</a></h2>
+</body>
+</html>

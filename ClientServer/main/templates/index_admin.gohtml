@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WELCOME ADMIN PAGE</title>
+</head>
+<body>
+{{/* {{if eq .Username "admin"}} */}}
+<h1>Welcome to GiveNGet System </h1>
+
+{{if .Username}}  {{/* if user name exist */}}
+Welcome User {{.Username}}<br>
+Your name is {{.Name}}<br>
+{{/*Last Visit :{{.LastLogin}}<br>*/}}
+
+<fieldset>
+    <legend>User</legend>
+    <input type=button onClick="location.href ='/searchItem'" value='Search List'>
+    <br>
+    <input type=button onClick="location.href ='/toGiveItem'" value='To Give'>
+    <br>
+    <fieldset>
+        <legend>My Tray</legend>
+        <input type=button onClick="location.href ='/myTrayToGive'" value='To Give Items'>
+        <br>
+        <input type=button onClick="location.href ='/myTrayGiven'" value='Given Items'>
+        <br>
+        <input type=button onClick="location.href ='/myTrayGotten'" value='Gotten Items'>
+        <br>
+        <input type=button onClick="location.href ='/myTrayWithdrawn'" value='Withdrawn Items'>
+    </fieldset>
+</fieldset>
+<br>
+<fieldset>
+  <legend>Admin</legend>
+    <input type=button onClick="location.href ='/displaySelect'" value='Select Display List '>
+    <br>
+    <input type=button onClick="location.href ='/deleteSession'" value='Delete Session'>
+    <br>
+    <input type=button onClick="location.href ='/deleteUser'" value='Delete User'>
+  </fieldset>
+{{/*    {{end}} */}}
+{{/* <h2><a href="/logout">Log Out</a></h2> */}}
+<br>
+<input type=button onClick="location.href ='/logout'" value='Log Out'>
+<br>
+{{else}}
+<h2>Please logged in or sign up for an account</h2>
+{{/* <h2><a href="/login">Log in</a></h2>
+<h2><a href="/signup">Sign Up</a></h2> */}}
+<input type=button onClick="location.href ='/login'" value='Login'>
+<input type=button onClick="location.href ='/signup'" value='Signup'>
+
+{{end}}
+
+</body>
+</html>

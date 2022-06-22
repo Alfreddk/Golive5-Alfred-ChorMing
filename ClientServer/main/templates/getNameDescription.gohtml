@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Name and Description of Item</title>
+</head>
+<body>
+
+<h1></h1>
+{{if eq .PageType 1}}
+   <h2>Item Description</h2>
+{{end}}
+{{if eq .PageType 2}}
+   <h2>Item Search</h2>
+{{end}}
+
+<form method="post">
+    <b><label for ="name">Enter Name: </label></b><br>
+    <input type="text" name="name" value = "{{.DefName}}"placeholder="Item name" size="40" pattern ="[A-Za-z]+[A-Za-z0-9]?" >
+    <br>
+    {{if eq .PageType 2}}
+        <input type="radio" id="or" name="searchLogic" value="OR" checked>
+        <label for="or">OR</label>
+        <input type="radio" id="and" name="searchLogic" value="AND">
+        <label for="and">AND</label>
+        <br>
+    {{end}}
+
+    {{$defvalue := .DefDescription}}
+    <b><label for ="Description">Enter Description: </label></b><br>
+    {{if eq .PageType 1}}
+        <textarea id="description" name="description" rows="4" cols="100">{{$defvalue}}</textarea>
+    {{end}}
+    {{if eq .PageType 2}}
+        <textarea id="description" name="description" rows="1" cols="50">{{$defvalue}}</textarea>
+    {{/* <input type="text" name="description" value = "{{.DefDescription}}" placeholder="description" size="100" pattern ="[A-Za-z]+[A-Za-z0-9]?" ><br> */}}
+    {{end}}    
+    <br>
+    <br>
+    <input type="submit">
+</form>
+
+<br>
+<input type=button onClick="location.href ='/'" value='Return to Index'>
+</body>
+</html>
+

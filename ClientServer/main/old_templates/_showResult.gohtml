@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Result</title>
+</head>
+<body>
+{{if lt .PageType 0}}  {{/* for Error Message*/}}
+<h1>Error</h1>
+<h2>.Msg</h2>
+{{end}}
+{{if eq .PageType 1}}  {{/* Booking result */}}
+<h1>Booking Result</h1>
+{{end}}
+{{if eq .PageType 2}}  {{/* Edit result */}}
+<h1>Edit Result</h1>
+{{end}}
+{{if eq .PageType 3}}  {{/* Venue Availability result */}}
+<h1>Venue Available</h1>
+{{end}}
+{{if eq .PageType 4}}  {{/* Booking Removed result */}}
+<h1>Booking Removed</h1>
+{{end}}
+{{if eq .PageType 5}}  {{/* Display All result */}}
+<h1>Display All Bookings</h1>
+{{end}}
+
+{{if .Msg}}
+    <h3>Status :</h3>
+    {{range .Msg}}
+        {{.}}<br>
+    {{end}}
+{{end}}
+
+{{if eq .PageType 1}}  {{/* Booking result */}}
+<h2><a href="/getBookingDetails">Back to Enter Booking Details</a></h2>
+<h2><a href="/bookVenue">Back Book Venue</a></h2>
+{{end}}
+{{if eq .PageType 2}}  {{/* Edit result */}}
+<h2><a href="/editRecord">Back to Edit Record</a></h2>
+<h2><a href="/searchEditBooking">Back Search Booking</a></h2>
+{{end}}
+{{if eq .PageType 3}}  {{/* remove result */}}
+<h2><a href="/searchAvailableVenue">Back to Search</a></h2>
+{{end}}
+{{if eq .PageType 4}}  {{/* remove result */}}
+<h2><a href="/showSearchResult">To Select more record for Removal</a></h2>
+<h2><a href="/searchRemoveBooking">Back to Select Search</a></h2>
+{{end}}
+{{if eq .PageType 5}}  {{/* remove result */}}
+<h2><a href="/searchShowAllBooking">Back To Sorting Order Select</a></h2>
+{{end}}
+
+<h2><a href="/">Back to Index</a></h2>
+</body>
+</html>

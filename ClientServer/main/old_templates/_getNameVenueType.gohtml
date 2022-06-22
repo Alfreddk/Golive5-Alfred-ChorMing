@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Name and Venue Type</title>
+</head>
+<body>
+
+<h1></h1>
+{{if eq .PageType 1}}
+   <h2>Book Venue</h2>
+{{end}}
+{{if eq .PageType 2}}
+   <h2>Edit Booking</h2>
+{{end}}
+
+<form method="post">
+{{/* Get User Booking Name */}}
+    <b><label for ="name">Enter Name: </label></b><br>
+    <input type="text" name="name" value = "{{.DefName}}"placeholder="booking name" maxlength="15" size="15" pattern ="[A-Za-z]+[A-Za-z0-9]?" required><br>
+    <br>
+{{/* Select Venue Type */}}
+    <b><label for ="venueType">Select Venue Type</label></b><br>  
+    {{$defVenueType := .DefVenueType}}
+    {{range $k, $v := .MapVenueType }}
+        {{if eq $k $defVenueType}}
+        <input type="radio" id="html" name="venueType" value="{{$k}}" checked>
+        <label for ="{{$v}}">{{$v}}</label><br>
+        {{else}}
+        <input type="radio" id="html" name="venueType" value="{{$k}}" required >
+        <label for ="{{$v}}">{{$v}}</label><br>
+        {{end}}
+    {{end}}
+    <br>
+    <input type="submit">
+</form>
+{{if eq .PageType 1}}
+<h2><a href="/showSearchResult">Back to Search Result</a></h2>
+{{end}}
+{{if eq .PageType 2}}
+<h2><a href="/showSearchResult">Back to Search Result</a></h2>
+{{end}}
+<h2><a href="/">Back to Index</a></h2>
+</body>
+</html>
+
