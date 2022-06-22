@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Tray List</title>
+</head>
+<body>
+{{if eq .PageType 1}} 
+<h1>To Give Item List</h1>
+{{end}}
+{{if eq .PageType 2}} 
+<h1>Given Item List</h1>
+{{end}}
+{{if eq .PageType 3}} 
+<h1>Gotten Item List</h1>
+{{end}}
+{{if eq .PageType 4}} 
+<h1>Withdrawn Item List</h1>
+{{end}}
+{{if eq .PageType 5}} 
+<h1>Get Items from the List</h1>
+{{end}}
+
+{{if .List}} 
+<form method="post">
+
+    {{$defSelect := .DefSelect}} {{/* have to use var for if compare later */}}
+    {{range $k, $v := .List }}
+        {{if eq $k $defSelect}}
+        {{/* <input type="radio" id="html" name="selected" value="{{$k}}" checked> */}}
+        <input type="checkbox" id="html" name="selected" value="{{$k}}" >
+        {{else}}
+        {{/* <input type="radio" id="html" name="selected" value="{{$k}}" > */}}
+        <input type="checkbox" id="html" name="selected" value="{{$k}}" >
+        {{end}}
+        <label for ="{{$v}}">{{$v}}</label><br>
+    {{end}}
+    <br>
+    {{if eq .PageType 1}}  
+    <input type="submit", value = "Withdraw Item">
+    {{end}}
+    {{if eq .PageType 2}}  
+    <input type="submit", value = "Remove From Tray">
+    {{end}}
+    {{if eq .PageType 3}}  
+    <input type="submit", value = "Remove From Tray">
+    {{end}}
+    {{if eq .PageType 4}}  
+    <input type="submit", value = "Remove From Tray">
+    {{end}}
+    {{if eq .PageType 5}}  
+    <input type="submit", value = "Get the Items">
+    {{end}}
+</form>
+{{end}}
+
+{{/* {{if eq .PageType 1}}  
+ <input type=button onClick="location.href ='/'" value='Back'>
+{{end}}
+{{if eq .PageType 2}} 
+ <input type=button onClick="location.href ='/'" value='Given'>
+{{end}}
+{{if eq .PageType 3}} 
+<input type=button onClick="location.href ='/'" value='Gotten'>  
+{{end}}
+{{if eq .PageType 4}} 
+<input type=button onClick="location.href ='/'" value='Withdrawn'>  
+{{end}} */}}
+{{if eq .PageType 5}} 
+<br>
+<input type=button onClick="location.href ='/searchItem'" value='Back'>  
+<br>
+{{end}}
+
+<br>
+<input type=button onClick="location.href ='/'" value='Return to Index'>
+</body>
+</html>

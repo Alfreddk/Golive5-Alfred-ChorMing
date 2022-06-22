@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Parameter</title>
+</head>
+<body>
+<h1>Enter Search Parameter</h1>
+
+{{if .List}}
+<form method="post">
+
+    {{/* Get Venue Name */}}
+    {{if eq .PageType 1}}
+    <b><label for ="venueName">Select Room</label></b><br>  
+    {{end}}
+
+    {{$defSelect := .DefSelect}} {{/* have to use var for if compare later */}}
+    {{range $k, $v := .List }}
+       <input type="radio" id="html" name="venueName" value="{{$k}}" required>
+       <label for ="{{$v}}">{{$v}}</label><br>
+    {{end}}
+    <br>
+    <input type="submit">
+</form>
+{{end}}
+
+<h2><a href="/getSearchParameter">Back to Previous Menu</a></h2>
+<h2><a href="/searchEditBooking">Back to Search and Edit Booking</a></h2>
+<h2><a href="/">Back to Index</a></h2>
+</body>
+</html>

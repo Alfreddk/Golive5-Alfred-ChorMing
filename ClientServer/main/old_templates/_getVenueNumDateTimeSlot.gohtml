@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>General Venue Name, Date and Time Slot</title>
+</head>
+<body>
+
+{{if eq .PageType 1}}
+    <h2>Enter Booking Details</h2>
+{{end}}
+{{if eq .PageType 2}}
+    <h2>Edit Booking Details</h2>
+{{end}}
+
+{{if .}}
+    <b>Name :</b> {{.Name}}<br>
+    <b>Venue Type :</b> {{.VenueType}}<br>
+
+<form method="post">
+    {{/* Select Venue Name */}}
+    <b><label for ="venueName">Select Venue</label></b><br>
+    {{$defVenueTypeNum := .DefVenueTypeNum}}   
+    {{range $k, $v := .VenueNames }}
+        {{if eq $k $defVenueTypeNum}}
+            <input type="radio" id="html" name="venueName" value="{{$k}}" checked>
+        {{else}}
+            <input type="radio" id="html" name="venueName" value="{{$k}}" required>
+        {{end}}
+        <label for ="{{$v}}">{{$v}}</label><br>
+    {{end}}
+    <br>
+    {{/* Get Date */}}
+    <b><label for ="date">Date:</label></b><br>
+    {{if .DefDate}} 
+       <input type="date" value = {{.DefDate}} name="date" min="2022-01-01" max="2049-12-31" required><br>
+    {{else}}
+       <input type="date" name="date" min="2022-01-01" max="2049-12-31" required><br>
+    {{end}}
+    {{/* Get Time Slot */}}
+    <br>
+    <b><label for ="timeSlot">Select Time Slot</label></b><br>
+    <select name="timeSlot" id="timeSlot" required> 
+    {{$defTimeSlot := .DefTimeSlot}} {{/* convert int to string */}}
+    {{range $k, $v := .TimeSlot }}   
+        {{if eq $k $defTimeSlot}}
+           <option value="{{$k}}" selected>{{$v}} </option>
+        {{else}}
+           <option value="{{$k}}" >{{$v}} </option>   
+        {{end}}
+    {{end}}
+    </select>
+    <br>
+    <br>
+    <input type="submit">
+</form>
+{{end}}
+{{if eq .PageType 1}}
+<h2><a href="/bookVenue">Back to Book Venue</a></h2>
+{{end}}
+{{if eq .PageType 2}}
+<h2><a href="/editRecord">Back to Edit Record</a></h2>
+{{end}}
+<h2><a href="/">Back to Index</a></h2>
+</body>
+</html>

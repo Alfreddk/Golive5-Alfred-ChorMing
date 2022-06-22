@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Select</title>
+</head>
+<body>
+{{if eq .PageType 1}}  {{/* Search option select */}}
+<h1>Search Select</h1>
+{{end}}
+{{if eq .PageType 2}}  {{/* Search option select */}}
+<h1>Displays All Booking in Order</h1>
+{{end}}
+
+{{if .List}} 
+<form method="post">
+    {{/* Select Venue Type */}} 
+    {{if eq .PageType 1}}  {{/* Search option select */}}
+    <h3><label for ="searchBy">Find Record By:</label></h3>  
+    {{end}}
+    {{if eq .PageType 2}}  {{/* Search option select */}}
+    <h3><label for ="searchBy">Sorted By:</label></h3>  
+    {{end}}
+
+    {{$defSelect := .DefSelect}} {{/* have to use var for if compare later */}}
+    {{range $k, $v := .List }}
+        {{if eq $k $defSelect}}
+        <input type="radio" id="html" name="searchBy" value="{{$k}}" checked>
+        {{else}}
+        <input type="radio" id="html" name="searchBy" value="{{$k}}" >
+        {{end}}
+        <label for ="{{$v}}">{{$v}}</label><br>
+    {{end}}
+    <br>
+    <input type="submit">
+</form>
+{{end}}
+
+<h2><a href="/">Back to Index</a></h2>
+</body>
+</html>
