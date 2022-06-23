@@ -2,6 +2,8 @@ package main
 
 import "fmt"
 
+var items []Item
+
 // initialisation for business logic
 func bizInit() {
 
