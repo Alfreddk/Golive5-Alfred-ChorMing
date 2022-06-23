@@ -71,28 +71,57 @@ func sqlEditItem(db *sql.DB, item Item) {
 	// .. to log successful call.
 }
 
-/* // working...
-func sqlGetAllUsers(db *sql.DB) map[string] {
-	rows, err := db.Query("Select * FROM Items")
+func sqlGetAllUsers(db *sql.DB) []User {
+	rows, err := db.Query("Select * FROM Users")
 	if err != nil {
 		panic(err.Error())
 	}
 	defer rows.Close()
 
-	var items []Item
+	var users []User
 
 	for rows.Next() {
-		var item Item
-		err = rows.Scan(&item.ID, &item.Name, &item.Description, &item.HideGiven, &item.HideGotten, &item.HideWithdrawn, &item.GiverID, &item.GetterID, &item.State, &item.Date)
+		var user User
+		err = rows.Scan(&user.ID, &user.Username, &user.Password, &user.Name, &user.Address, &user.Postal, &user.Telephone, &user.Role, &user.LastLogin)
 		if err != nil {
 			panic(err.Error())
 		}
-		items = append(items, item)
+		users = append(users, user)
 	}
 	//fmt.Println(items)
 	// .. to log successful call.
 
-	return items
+	return users
+}
+
+/*
+// alfred 23.06.2022: kiv passing JSON with map..
+func sqlGetAllUsers(db *sql.DB) map[string]User {
+	rows, err := db.Query("Select * FROM Users")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer rows.Close()
+
+	var users map[string]User
+	users = make(map[string]User)
+
+	for rows.Next() {
+		//var item Item
+		var key string
+		var user User
+
+		err = rows.Scan(&user.ID, &user.Username, &user.Password, &user.Name, &user.Address, &user.Postal, &user.Telephone, &user.LastLogin)
+		if err != nil {
+			panic(err.Error())
+		}
+		key = user.Username
+		users[key] = user
+	}
+	//fmt.Println(users)
+	// .. to log successful call.
+
+	return users
 }
 */
 

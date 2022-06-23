@@ -23,5 +23,6 @@ type User struct {
 	Address   string `json:"Address"`
 	Postal    string `json:"Postal"`
 	Telephone string `json:"Telephone"`
+	Role      string `json:"Role"`
 	LastLogin string `json:"LastLogin"`
 }

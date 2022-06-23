@@ -36,7 +36,7 @@ type user struct {
 }*/
 
 var tpl *template.Template
-var mapUsers = map[string]User{}
+
 var mapSessions = map[string]string{}
 var mapDeletedUser = map[string]string{}
 var mapDeletedSession = map[string]string{}
@@ -153,6 +153,8 @@ func init() {
 	mapUsers[adminName2] = User{"", adminName2, string(bPassword2), "Staff2", "", "", "", ""}
 	bPassword3, _ := bcrypt.GenerateFromPassword([]byte(password3), bcrypt.DefaultCost)
 	mapUsers[adminName3] = User{"", adminName3, string(bPassword3), "Staff3", "", "", "", ""}
+
+	userInit()
 
 	// Initialise the business logic
 	bizInit()

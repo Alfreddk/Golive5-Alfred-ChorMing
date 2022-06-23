@@ -75,14 +75,14 @@ Username VARCHAR(50),
 Password VARCHAR(255),
 Name VARCHAR(50),
 Address VARCHAR(100),
-PostalCode VARCHAR(10),
-TelNumber VARCHAR(10),
+Postal VARCHAR(10),
+Telephone VARCHAR(10),
 Role VARCHAR(5),
 LastLogin VARCHAR(100));
 
-INSERT INTO Users (Username, Password, Name, Address, PostalCode, TelNumber, Role, LastLogin)
+INSERT INTO Users (Username, Password, Name, Address, Postal, Telephone, Role, LastLogin)
 VALUES ('testadmin', 'testadmin', 'testadmin', '', '', '', 'admin', '');
 
 -- cant be used as user password supposed to be bcryted.
-INSERT INTO Users (Username, Password, Name, Address, PostalCode, TelNumber, Role, LastLogin)
-VALUES ('testuser1', 'testuser2', 'testuser2', '535 Clementi Rd', '599489', '64666555', 'user', '');
+INSERT INTO Users (Username, Password, Name, Address, Postal, Telephone, Role, LastLogin)
+VALUES ('testuser1', 'testuser1', 'testuser1', '535 Clementi Rd', '599489', '64666555', 'user', '');

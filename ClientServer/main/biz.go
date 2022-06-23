@@ -136,7 +136,7 @@ func bizGiveItem(name string, description string) ([]string, error) {
 	currentTime := time.Now()
 	date := currentTime.Format("2006-01-02")
 
-	item := Item{"", name, description, 0, 0, 0, "testuser", "", 0, date} //GiverID hardcoded for testing purpose..
+	item := Item{"", name, description, 0, 0, 0, "testuser1", "", 0, date} //GiverUsername hardcoded for testing purpose..
 
 	err := addNewItem(item) // add item to items table in mysql
 	if err != nil {
