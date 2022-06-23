@@ -1,10 +1,15 @@
 package main
 
 import (
+
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 
 	"github.com/go-sql-driver/mysql"
+
 )
 
 var items []Item
@@ -14,6 +19,15 @@ var cfg mysql.Config // configuration for DSN
 
 // initialisation for business logic
 func bizInit() {
+
+	items, err := getAllItems()
+	if err != nil {
+		fmt.Println(err)
+		// log error
+	}
+
+	fmt.Println(items)
+
 	//	bizSqlInit()  // This is for SQL initialisation if SQL if front/back server is combined
 	bizItemListInit()
 }
@@ -65,6 +79,7 @@ func bizItemListInit() {
 			i, v.ID, v.Name, v.Description, v.HideGiven, v.HideGotten, v.HideWithdrawn, v.GiverID, v.GetterID, v.State, v.Date)
 	}
 	//fmt.Println("List of Items", items)
+
 }
 
 // bizListSearchItems - searchs for a list of item that has name OR/AND itemDescription
@@ -214,4 +229,30 @@ func bizMyTrayItems(tray string) ([]string, error) {
 
 	//var test []string
 	return strList, nil
+}
+
+func getAllItems() (items []Item, err error) {
+
+	items = []Item{}
+
+	backendURL := "http://127.0.0.1:5000/api/v1/allitems/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+
+	resp, err := http.Get(backendURL)
+	if err != nil {
+		return items, fmt.Errorf("Error: POST request - %v", err)
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respData, _ := io.ReadAll(resp.Body)
+		defer resp.Body.Close()
+
+		err := json.Unmarshal(respData, &items)
+		if err != nil {
+			return items, fmt.Errorf("Error: JSON unmarshaling session - %v", err)
+		}
+
+		return items, nil
+	}
+
+	return items, fmt.Errorf("Error: resp.StatusCode is not 200 - %v", err)
 }

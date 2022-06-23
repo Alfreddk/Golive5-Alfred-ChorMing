@@ -5,6 +5,7 @@ func userInit() {
 
 }
 
+/*
 // Request for new session ID for new session
 func userRequestSessionID() {
 
@@ -16,3 +17,4 @@ func userGetUser() {
 }
 
 // returns boolean true of false if the user is a valid
+*/
