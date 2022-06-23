@@ -10,6 +10,6 @@ type Item struct {
 	HideWithdrawn int    `json:"HideWithdrawn"`
 	GiverID       string `json:"GiverID"`
 	GetterID      string `json:"GetterID"`
-	State         string `json:"State"`
+	State         int    `json:"State"`
 	Date          string `json:"Date"`
 }
