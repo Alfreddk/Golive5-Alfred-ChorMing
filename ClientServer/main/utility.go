@@ -115,9 +115,10 @@ func convertItems2String(data []Item) []string {
 
 	for _, v := range data {
 		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
-		state := fmt.Sprintf("%d", v.State)
+		//state := fmt.Sprintf("%d", v.State)
 		listdata = append(listdata, "ID:"+v.ID+", Name:"+v.Name+", Description:"+v.Description+
-			", State:"+state+", Hide:"+hideStatus+", GiverUsername:"+v.GiverUsername+", GetterUsername:"+v.GetterUsername+", Date:"+v.Date)
+
+			", State:"+itemState[v.State]+", Hide:"+hideStatus+", GiverUsername:"+v.GiverUsername+", GetterUsername:"+v.GetterUsername+", Date:"+v.Date)
 	}
 	fmt.Println("convertItems2String")
 	return listdata

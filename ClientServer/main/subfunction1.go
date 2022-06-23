@@ -51,6 +51,7 @@ var mapSessionSearchLogic = map[string]string{}
 var mapSessionSearch = map[string]string{}
 var mapSessionSelect = map[string][]string{}
 var mapSessionSort = map[string]string{}
+var mapSessionSearchedList = map[string][]Item{}
 
 var mapSessionPreviousMenu = map[string]string{}
 
@@ -210,29 +211,23 @@ func showSearchList(res http.ResponseWriter, req *http.Request) {
 		fmt.Println("There is no info on search criteria - use a default listing or no listing?")
 	}
 	/****************************************/
-	// Process the list of item for display
-	//test data
-	// mr1 := itemType{Id: "MR1", Name: "Clothes", Description: "A box of 10 shirts"}
-	// mr2 := itemType{Id: "MR2", Name: "Clothes", Description: "A box of 20 shirts"}
-	// mr3 := itemType{Id: "MR3", Name: "Saw", Description: "A 10 inch saw"}
-	// mr4 := itemType{Id: "MR4", Name: "Computer", Description: "A Intel Computer and monitor"}
-	// mr5 := itemType{Id: "MR5", Name: "Calculator", Description: "A scientific calculator"}
-	// mr6 := itemType{Id: "MR6", Name: "Monitor", Description: "Dell Model 123"}
-	// mr7 := itemType{Id: "MR7", Name: "Monitor", Description: "LG Model XYZ, 24 inche"}
-	// mr8 := itemType{Id: "MR8", Name: "Clothes", Description: "A box of 10 shorts"}
-	// mr9 := itemType{Id: "MR9", Name: "Bed Sheets", Description: "3 Queen size bed sheet"}
-	// mr10 := itemType{Id: "MR10", Name: "Shoe", Description: "A pair of size 10 shoes for men"}
-	// mr11 := itemType{Id: "MR11", Name: "Bed Sheets", Description: "3 king size bed sheet"}
-	// mr12 := itemType{Id: "MR12", Name: "Shoe", Description: "A pair of size 12 shoes for men"}
-	// list := []itemType{mr1, mr2, mr3, mr4, mr5, mr6, mr7, mr8, mr9, mr10, mr11, mr12}
-	// listMenu.List = list
 
-	list, err := bizListSearchItems(name, itemDescription, searchLogic)
+	searchedItems, err := bizListSearchItems(name, itemDescription, searchLogic)
+	mapSessionSearchedList[myCookie.Value] = make([]Item, len(searchedItems))
+	mapSessionSearchedList[myCookie.Value] = searchedItems
+
 	if err != nil {
 		http.Error(res, "Error in ShowSearchList ", http.StatusInternalServerError)
 		fmt.Println("Error :", err)
 		return
 	}
+
+	var list []string
+	// Extract only ID and name for display
+	// for _, v := range mapSessionSearchedList[myCookie.Value] {
+	// 	list = append(list, v.ID+": "+v.Name)
+	// }
+	list = convertItems2String(mapSessionSearchedList[myCookie.Value])
 
 	fmt.Println("ItemList : ", list)
 
@@ -432,7 +427,7 @@ func getListedItems(res http.ResponseWriter, req *http.Request) {
 	/******************************/
 	// Process the list of items picked by getter
 
-	msg, err := bizGetListedItems(selectedList)
+	msg, err := bizGetListedItems(myCookie.Value, selectedList)
 	if err != nil {
 		http.Error(res, "Error in bizGetListedItems ", http.StatusInternalServerError)
 		fmt.Println("Error :", err)
