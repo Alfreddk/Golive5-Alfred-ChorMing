@@ -71,6 +71,31 @@ func sqlEditItem(db *sql.DB, item Item) {
 	// .. to log successful call.
 }
 
+/* // working...
+func sqlGetAllUsers(db *sql.DB) []Item {
+	rows, err := db.Query("Select * FROM Items")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer rows.Close()
+
+	var items []Item
+
+	for rows.Next() {
+		var item Item
+		err = rows.Scan(&item.ID, &item.Name, &item.Description, &item.HideGiven, &item.HideGotten, &item.HideWithdrawn, &item.GiverID, &item.GetterID, &item.State, &item.Date)
+		if err != nil {
+			panic(err.Error())
+		}
+		items = append(items, item)
+	}
+	//fmt.Println(items)
+	// .. to log successful call.
+
+	return items
+}
+*/
+
 /*
 // GetRecords gets all the rows of the current table and return as a slice of map
 func GetRecords(db *sql.DB) map[string]interface{} {

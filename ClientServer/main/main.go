@@ -24,6 +24,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+/*
 type user struct {
 	Username  string //username
 	Password  []byte //password hash
@@ -32,10 +33,10 @@ type user struct {
 	Postal    string
 	Telephone string
 	LastLogin string
-}
+}*/
 
 var tpl *template.Template
-var mapUsers = map[string]user{}
+var mapUsers = map[string]User{}
 var mapSessions = map[string]string{}
 var mapDeletedUser = map[string]string{}
 var mapDeletedSession = map[string]string{}
@@ -147,15 +148,11 @@ func init() {
 	// template initialisation
 	tpl = template.Must(template.ParseGlob("templates/*"))
 	bPassword1, _ := bcrypt.GenerateFromPassword([]byte(password1), bcrypt.DefaultCost)
-	mapUsers[adminName1] = user{adminName1, bPassword1, "Staff1", "", "", "", ""}
+	mapUsers[adminName1] = User{"", adminName1, string(bPassword1), "Staff1", "", "", "", ""}
 	bPassword2, _ := bcrypt.GenerateFromPassword([]byte(password2), bcrypt.DefaultCost)
-	mapUsers[adminName2] = user{adminName2, bPassword2, "Staff2", "", "", "", ""}
+	mapUsers[adminName2] = User{"", adminName2, string(bPassword2), "Staff2", "", "", "", ""}
 	bPassword3, _ := bcrypt.GenerateFromPassword([]byte(password3), bcrypt.DefaultCost)
-	mapUsers[adminName3] = user{adminName3, bPassword3, "Staff3", "", "", "", ""}
-
-
-
-
+	mapUsers[adminName3] = User{"", adminName3, string(bPassword3), "Staff3", "", "", "", ""}
 
 	// Initialise the business logic
 	bizInit()
@@ -250,7 +247,7 @@ func signup(res http.ResponseWriter, req *http.Request) {
 	// First name enforce 2 alpha characters
 	regex3 := regexp.MustCompile(`([a-zA-Z]){2,}(\x20)*([a-zA-Z])*`)
 
-	var myUser user
+	var myUser User
 	// process if there is a http post form submission
 	if req.Method == http.MethodPost {
 		// get form values from browser
@@ -326,7 +323,7 @@ func signup(res http.ResponseWriter, req *http.Request) {
 				return
 			}
 			// initialise myUser
-			myUser = user{username, bPassword, name, address, postalcode, telnumber, ""}
+			myUser = User{"", username, string(bPassword), name, address, postalcode, telnumber, ""}
 			mapUsers[username] = myUser
 			userLastVisit[username] = "None"
 		}
@@ -383,7 +380,7 @@ func login(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 		// Username verified, checking Matching of password entered
-		err := bcrypt.CompareHashAndPassword(myUser.Password, []byte(password))
+		err := bcrypt.CompareHashAndPassword([]byte(myUser.Password), []byte(password))
 		if err != nil {
 			userLastVisit[username] = fmt.Sprintf("Failed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm"))
 
@@ -527,7 +524,7 @@ func showDeletedSession(res http.ResponseWriter, req *http.Request) {
 
 // getUser validate user's cookie with server's user session presence
 // generate a new cookie for user with no server session presence
-func getUser(res http.ResponseWriter, req *http.Request) user {
+func getUser(res http.ResponseWriter, req *http.Request) User {
 	Trace.Println("getUser")
 	// get current session cookie
 	myCookie, err := req.Cookie("myCookie")
@@ -543,7 +540,7 @@ func getUser(res http.ResponseWriter, req *http.Request) user {
 	http.SetCookie(res, myCookie)
 
 	// if the user exists already, get user
-	var myUser user
+	var myUser User
 	// get the user identity from record
 	if username, ok := mapSessions[myCookie.Value]; ok { //retrieve of the session
 		myUser = mapUsers[username] // verify the user

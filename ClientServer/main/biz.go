@@ -296,7 +296,7 @@ func addNewItem(item Item) error {
 	return errors.New("Error: resp.StatusCode is not 200")
 }
 
-func editItem(item Item) error {
+func editItem(item Item) error { // alfred 23.06.2022: not tested...
 
 	backendURL := "http://127.0.0.1:5000/api/v1/edititem/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
 
