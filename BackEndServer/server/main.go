@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -94,11 +95,67 @@ func allItems(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	bufferMap := GetAllItems(db)
+	bufferMap := sqlGetAllItems(db)
 
-	fmt.Println(bufferMap)
+	//fmt.Println(bufferMap)
 
 	json.NewEncoder(w).Encode(bufferMap)
+}
+
+func addNewItem(w http.ResponseWriter, r *http.Request) {
+
+	if r.Header.Get("Content-type") == "application/json" {
+
+		var item Item
+
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			fmt.Println(err)
+			// log error
+		} else {
+			err = json.Unmarshal(reqBody, &item)
+			if err != nil {
+				fmt.Println(err)
+				// log error
+			}
+
+			db, err := sql.Open("mysql", cfg.FormatDSN())
+			if err != nil {
+				panic(err.Error())
+			}
+			defer db.Close()
+
+			sqlAddNewItem(db, item)
+
+		}
+	}
+}
+
+func editItem(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Content-type") == "application/json" {
+
+		var item Item
+
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			fmt.Println(err)
+			// log error
+		} else {
+			err = json.Unmarshal(reqBody, &item)
+			if err != nil {
+				fmt.Println(err)
+				// log error
+			}
+
+			db, err := sql.Open("mysql", cfg.FormatDSN())
+			if err != nil {
+				panic(err.Error())
+			}
+			defer db.Close()
+
+			sqlEditItem(db, item)
+		}
+	}
 }
 
 /*
@@ -298,6 +355,8 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/api/v1/allitems/", allItems).Methods("GET")
+	router.HandleFunc("/api/v1/addnewitem/", addNewItem).Methods("POST")
+	router.HandleFunc("/api/v1/edititem/", editItem).Methods("POST")
 
 	/*
 		router.HandleFunc("/api/v1/", home)

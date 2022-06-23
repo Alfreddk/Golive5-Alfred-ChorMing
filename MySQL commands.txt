@@ -64,7 +64,7 @@ SELECT * FROM Items LIMIT 0, 100;
 
 -- to update fields of an item. (choose the fields you want to update).
 UPDATE Items
-Set HideGiven = 0, HideGotten = 0, HideWithdrawn = 1, State = 'withdrawn'
+Set HideGiven = 0, HideGotten = 0, HideWithdrawn = 1, GetterID = 2, State = 3
 WHERE ID = 2;
 
 
@@ -72,15 +72,17 @@ WHERE ID = 2;
 CREATE TABLE Users (
 ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 Username VARCHAR(50),
-Password VARCHAR(50),
+Password VARCHAR(255),
 Name VARCHAR(50),
 Address VARCHAR(100),
 PostalCode VARCHAR(10),
 TelNumber VARCHAR(10),
-Role VARCHAR(5));
+Role VARCHAR(5),
+LastLogin VARCHAR(100));
 
-INSERT INTO Users (Username, Password, Name, Address, PostalCode, TelNumber, Role)
-VALUES ('testadmin', 'testadmin', 'testadmin', '', '', '', 'admin');
+INSERT INTO Users (Username, Password, Name, Address, PostalCode, TelNumber, Role, LastLogin)
+VALUES ('testadmin', 'testadmin', 'testadmin', '', '', '', 'admin', '');
 
-INSERT INTO Users (Username, Password, Name, Address, PostalCode, TelNumber, Role)
-VALUES ('testuser1', 'testuser2', 'testuser2', '535 Clementi Rd', '599489', '64666555', 'user');
+-- cant be used as user password supposed to be bcryted.
+INSERT INTO Users (Username, Password, Name, Address, PostalCode, TelNumber, Role, LastLogin)
+VALUES ('testuser1', 'testuser2', 'testuser2', '535 Clementi Rd', '599489', '64666555', 'user', '');
