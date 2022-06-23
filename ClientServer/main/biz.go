@@ -54,8 +54,8 @@ func bizItemListInit() {
 
 	fmt.Println("List of Items")
 	for i, v := range items {
-		fmt.Printf("item %d:, ID: %s, Name: %s, Description: %s, HideGiven: %d, HideGotten: %d, HideWithdrawn: %d, GiverID: %s, GetterID: %s, State: %d, Date: %s\n",
-			i, v.ID, v.Name, v.Description, v.HideGiven, v.HideGotten, v.HideWithdrawn, v.GiverID, v.GetterID, v.State, v.Date)
+		fmt.Printf("item %d:, ID: %s, Name: %s, Description: %s, HideGiven: %d, HideGotten: %d, HideWithdrawn: %d, GiverUsername: %s, GetterUsername: %s, State: %d, Date: %s\n",
+			i, v.ID, v.Name, v.Description, v.HideGiven, v.HideGotten, v.HideWithdrawn, v.GiverUsername, v.GetterUsername, v.State, v.Date)
 	}
 	//fmt.Println("List of Items", items)
 
@@ -136,7 +136,7 @@ func bizGiveItem(name string, description string) ([]string, error) {
 	currentTime := time.Now()
 	date := currentTime.Format("2006-01-02")
 
-	item := Item{"", name, description, 0, 0, 0, "1", "0", 0, date} //GiverID hardcoded for testing purpose..
+	item := Item{"", name, description, 0, 0, 0, "testuser", "", 0, date} //GiverID hardcoded for testing purpose..
 
 	err := addNewItem(item) // add item to items table in mysql
 	if err != nil {
@@ -210,9 +210,9 @@ func bizGetSortedList(sortBy string) ([]string, error) {
 	case "3":
 		sort.SliceStable(items, func(i, j int) bool { return items[i].Date < items[j].Date })
 	case "4":
-		sort.SliceStable(items, func(i, j int) bool { return items[i].GiverID < items[j].GiverID })
+		sort.SliceStable(items, func(i, j int) bool { return items[i].GiverUsername < items[j].GiverUsername }) //alfred 23.06.2022: ChorMing you need to relook into this. Changed from ID to username.
 	case "5":
-		sort.SliceStable(items, func(i, j int) bool { return items[i].GetterID < items[j].GetterID })
+		sort.SliceStable(items, func(i, j int) bool { return items[i].GetterUsername < items[j].GetterUsername }) //alfred 23.06.2022: ChorMing you need to relook into this. Changed from ID to username.
 	}
 
 	msg := convertItems2String(items)
