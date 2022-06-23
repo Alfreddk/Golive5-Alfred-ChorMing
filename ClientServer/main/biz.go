@@ -1,6 +1,7 @@
 package main
 
 import (
+
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -8,26 +9,20 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"time"
+	"sort"
+	"strings"
+  "time"
 
 	"github.com/go-sql-driver/mysql"
 )
 
-var items []Item
+var Items []Item
 
 //var sqlDBConnection string
 var cfg mysql.Config // configuration for DSN
 
 // initialisation for business logic
 func bizInit() {
-
-	items, err := getAllItems()
-	if err != nil {
-		fmt.Println(err)
-		// log error
-	}
-
-	fmt.Println(items)
 
 	//	bizSqlInit()  // This is for SQL initialisation if SQL if front/back server is combined
 	//bizItemListInit()
@@ -47,32 +42,15 @@ func bizSqlInit() {
 
 // Iniitialises item for testing purpose
 func bizItemListInit() {
-	// date format using ISO8601
-	item1 := Item{ID: "0", Name: "Clothes", Description: "A box of 10 shirts", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-11T23:28:56.782Z"}
-	item2 := Item{ID: "1", Name: "Clothes", Description: "A box of 20 shirts", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-10T23:28:56.782Z"}
-	item3 := Item{ID: "2", Name: "Saw", Description: "A 10 inch saw", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-09T23:28:56.782Z"}
-	item4 := Item{ID: "3", Name: "Computer System", Description: "A Intel Dual Core Computer and monitor", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-08T23:28:56.782Z"}
-	item5 := Item{ID: "4", Name: "Calculator", Description: "A scientific calculator", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-07T23:28:56.782Z"}
-	item6 := Item{ID: "5", Name: "Monitor", Description: "Dell Model P2412, 24 inch Monitor", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-06T23:28:56.782Z"}
-	item7 := Item{ID: "6", Name: "Monitor", Description: "LG Model XYZ, 24 inches", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-05T23:28:56.782Z"}
-	item8 := Item{ID: "7", Name: "Clothes", Description: "A box of 20 shirts", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-04T23:28:56.782Z"}
-	item9 := Item{ID: "8", Name: "Clothes", Description: "A box of 10 shorts", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-03T23:28:56.782Z"}
-	item10 := Item{ID: "9", Name: "Bed Sheets", Description: "3 Queen size bed sheet", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-02-02T23:28:56.782Z"}
-	item11 := Item{ID: "10", Name: "Bed Sheets", Description: "3 king and 2 super singles bedsheets", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-02T23:28:56.782Z"}
-	item12 := Item{ID: "11", Name: "Shoes", Description: "2 pair of size 12 shoes for men", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
-		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-01T23:28:56.782Z"}
-	items := []Item{item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12}
+
+	items, err := getAllItems()
+	if err != nil {
+		fmt.Println(err)
+		// log error
+	}
+
+	Items = make([]Item, len(items))
+	copy(Items, items)
 
 	fmt.Println("List of Items")
 	for i, v := range items {
@@ -84,23 +62,36 @@ func bizItemListInit() {
 }
 
 // bizListSearchItems - searchs for a list of item that has name OR/AND itemDescription
-func bizListSearchItems(name string, itemDescription string, searchLogic string) ([]string, error) {
-	// test data
-	mr1 := itemType{Id: "MR1", Name: "Clothes", Description: "A box of 10 shirts"}
-	mr2 := itemType{Id: "MR2", Name: "Clothes", Description: "A box of 20 shirts"}
-	mr3 := itemType{Id: "MR3", Name: "Saw", Description: "A 10 inch saw"}
-	mr4 := itemType{Id: "MR4", Name: "Computer", Description: "A Intel Computer and monitor"}
-	mr5 := itemType{Id: "MR5", Name: "Calculator", Description: "A scientific calculator"}
-	mr6 := itemType{Id: "MR6", Name: "Monitor", Description: "Dell Model 123"}
-	mr7 := itemType{Id: "MR7", Name: "Monitor", Description: "LG Model XYZ, 24 inche"}
-	mr8 := itemType{Id: "MR8", Name: "Clothes", Description: "A box of 10 shorts"}
-	mr9 := itemType{Id: "MR9", Name: "Bed Sheets", Description: "3 Queen size bed sheet"}
-	mr10 := itemType{Id: "MR10", Name: "Shoe", Description: "A pair of size 10 shoes for men"}
-	mr11 := itemType{Id: "MR11", Name: "Bed Sheets", Description: "3 king size bed sheet"}
-	mr12 := itemType{Id: "MR12", Name: "Shoe", Description: "A pair of size 12 shoes for men"}
-	list := []itemType{mr1, mr2, mr3, mr4, mr5, mr6, mr7, mr8, mr9, mr10, mr11, mr12}
+func bizListSearchItems(name string, description string, searchLogic string) ([]string, error) {
+	// items, err := getAllItems()
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	// log error
+	// }
 
-	strList := convertToString(list)
+	var foundList []Item
+
+	// convert to lower case for search
+	name = strings.ToLower(name)
+	description = strings.ToLower(description)
+
+	if searchLogic == "OR" {
+		for _, v := range Items {
+			if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) ||
+				len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
+				foundList = append(foundList, v)
+			}
+		}
+	}
+	if searchLogic == "AND" {
+		for _, v := range Items {
+			if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) &&
+				len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
+				foundList = append(foundList, v)
+			}
+		}
+	}
+	strList := convertItems2String(foundList)
 	fmt.Println("String List", strList)
 
 	return strList, nil
@@ -205,22 +196,26 @@ func bizRemoveFromTray(selectedList []string, tray string) ([]string, error) {
 func bizGetSortedList(sortBy string) ([]string, error) {
 	fmt.Println("Sort By:", sortBy)
 
-	mr12 := itemType{Id: "MR1", Name: "Clothes", Description: "A box of 10 shirts"}
-	mr11 := itemType{Id: "MR2", Name: "Clothes", Description: "A box of 20 shirts"}
-	mr10 := itemType{Id: "MR3", Name: "Saw", Description: "A 10 inch saw"}
-	mr9 := itemType{Id: "MR4", Name: "Computer", Description: "A Intel Computer and monitor"}
-	mr8 := itemType{Id: "MR5", Name: "Calculator", Description: "A scientific calculator"}
-	mr7 := itemType{Id: "MR6", Name: "Monitor", Description: "Dell Model 123"}
-	mr6 := itemType{Id: "MR7", Name: "Monitor", Description: "LG Model XYZ, 24 inche"}
-	mr5 := itemType{Id: "MR8", Name: "Clothes", Description: "A box of 10 shorts"}
-	mr4 := itemType{Id: "MR9", Name: "Bed Sheets", Description: "3 Queen size bed sheet"}
-	mr3 := itemType{Id: "MR10", Name: "Shoe", Description: "A pair of size 10 shoes for men"}
-	mr2 := itemType{Id: "MR11", Name: "Bed Sheets", Description: "3 king size bed sheet"}
-	mr1 := itemType{Id: "MR12", Name: "Shoe", Description: "A pair of size 12 shoes for men"}
-	list := []itemType{mr1, mr2, mr3, mr4, mr5, mr6, mr7, mr8, mr9, mr10, mr11, mr12}
-	//fmt.Println(list)
-	// selected soted selection
-	msg := convertToString(list)
+	// make an empty list before sort
+	items := make([]Item, len(Items))
+	copy(items, Items) // deep copy
+
+	switch sortBy {
+	case "0":
+		// unsorted list
+	case "1":
+		sort.SliceStable(items, func(i, j int) bool { return items[i].Name < items[j].Name })
+	case "2":
+		sort.SliceStable(items, func(i, j int) bool { return items[i].State < items[j].State })
+	case "3":
+		sort.SliceStable(items, func(i, j int) bool { return items[i].Date < items[j].Date })
+	case "4":
+		sort.SliceStable(items, func(i, j int) bool { return items[i].GiverID < items[j].GiverID })
+	case "5":
+		sort.SliceStable(items, func(i, j int) bool { return items[i].GetterID < items[j].GetterID })
+	}
+
+	msg := convertItems2String(items)
 
 	//	var test []string
 	return msg, nil
