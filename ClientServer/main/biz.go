@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -62,7 +63,7 @@ func bizItemListInit() {
 }
 
 // bizListSearchItems - searchs for a list of item that has name OR/AND itemDescription
-func bizListSearchItems(name string, description string, searchLogic string) ([]string, error) {
+func bizListSearchItems(name string, description string, searchLogic string) ([]Item, error) {
 	// items, err := getAllItems()
 	// if err != nil {
 	// 	fmt.Println(err)
@@ -94,24 +95,41 @@ func bizListSearchItems(name string, description string, searchLogic string) ([]
 	strList := convertItems2String(foundList)
 	fmt.Println("String List", strList)
 
-	return strList, nil
+	return foundList, nil
 }
 
 // Get a list of selected items
-func bizGetListedItems(selectedItem []string) ([]string, error) {
+func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 
+	// item list is in this map mapSessionSearchedList[uuid]
 	var msg []string
 	num := fmt.Sprintf("Number of items Gotten = %d", len(selectedItem))
 	msg = append(msg, num)
 	// test data
+	// pick up the selected items, only display ID and name
+	// Need also to set the flag for the database
 	for _, v := range selectedItem {
-		item := fmt.Sprintf("item %v, moved to Gotten Tray", v)
+		intVar, _ := strconv.Atoi(v) // use this to get the integer value of the index
+		item := fmt.Sprintf("Item:%d, ID: %s, Name: %s, Description: %s", intVar+1, mapSessionSearchedList[uuid][intVar].ID,
+			mapSessionSearchedList[uuid][intVar].Name, mapSessionSearchedList[uuid][intVar].Description)
+		bizUpdateItemState(mapSessionSearchedList[uuid][intVar].ID)
 		msg = append(msg, item)
 	}
 
 	//var test []string
 	return msg, nil
+}
 
+// Update the state of the item in slice and in SQL DB
+// SQL DB need API, pending implementation
+func bizUpdateItemState(id string) {
+	//	fmt.Println("ID:", id)
+	for i, v := range Items {
+		if v.ID == id {
+			Items[i].State = stateGiven // use index to change the state directly
+			break                       // match found, so can break
+		}
+	}
 }
 
 // withdraw a list of selected items
@@ -136,7 +154,7 @@ func bizGiveItem(name string, description string) ([]string, error) {
 	currentTime := time.Now()
 	date := currentTime.Format("2006-01-02")
 
-	item := Item{"", name, description, 0, 0, 0, "1", "0", 0, date} //GiverID hardcoded for testing purpose..
+	item := Item{"", name, description, 0, 0, 0, "0", "0", stateToGive, date} //GiverID hardcoded for testing purpose..
 
 	err := addNewItem(item) // add item to items table in mysql
 	if err != nil {

@@ -25,3 +25,21 @@ type User struct {
 	Telephone string `json:"Telephone"`
 	LastLogin string `json:"LastLogin"`
 }
+
+// ToGive - item given but not received yet
+// Given - items given and has a receiver
+// Gotten - items given but not received yet  (Not used at the moment)
+// Withdrawn - items given, not received yet and withdrawn
+const (
+	stateToGive = iota
+	stateGiven
+	stateWithdrawn
+)
+
+type state map[int]string
+
+var itemState = state{
+	stateToGive:    "ToGive",
+	stateGiven:     "Given",
+	stateWithdrawn: "Withdrawn",
+}
