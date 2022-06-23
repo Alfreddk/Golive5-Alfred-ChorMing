@@ -299,7 +299,9 @@ func displaySelect(res http.ResponseWriter, req *http.Request) {
 		"Unsorted Listing Order",
 		"Name",
 		"Item State",
-		"Whatever",
+		"Date",
+		"Giver ID",
+		"Getter ID",
 	}
 
 	listMenu.PageType = 2

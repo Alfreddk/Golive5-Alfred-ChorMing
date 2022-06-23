@@ -108,3 +108,17 @@ func convertToString(data []itemType) []string {
 
 	return listdata
 }
+
+// Convert items data to string slices
+func convertItems2String(data []Item) []string {
+	listdata := []string{}
+
+	for _, v := range data {
+		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
+		state := fmt.Sprintf("%d", v.State)
+		listdata = append(listdata, "ID:"+v.ID+", Name:"+v.Name+", Description:"+v.Description+
+			", State:"+state+", Hide:"+hideStatus+", GiverID:"+v.GiverID+", GetterID:"+v.GetterID+", Date:"+v.Date)
+	}
+	fmt.Println("convertItems2String")
+	return listdata
+}

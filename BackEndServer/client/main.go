@@ -39,7 +39,7 @@ func init() {
 	key = os.Getenv("CLIENT_URLKEY")
 
 	// Create base URL from environment variable
-	baseURL = fmt.Sprintf("http://%s:%s/api/v1/courses", clientHost, clientPort)
+	baseURL = fmt.Sprintf("http://%s:%s/api/v1/allItems", clientHost, clientPort)
 
 	fmt.Println(baseURL)
 
