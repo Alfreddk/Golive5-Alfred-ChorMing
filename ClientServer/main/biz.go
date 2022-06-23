@@ -1,7 +1,6 @@
 package main
 
 import (
-
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -11,7 +10,7 @@ import (
 	"os"
 	"sort"
 	"strings"
-  "time"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -25,7 +24,7 @@ var cfg mysql.Config // configuration for DSN
 func bizInit() {
 
 	//	bizSqlInit()  // This is for SQL initialisation if SQL if front/back server is combined
-	//bizItemListInit()
+	bizItemListInit()
 }
 
 // Initialise the SQL server connection from main init
@@ -43,6 +42,7 @@ func bizSqlInit() {
 // Iniitialises item for testing purpose
 func bizItemListInit() {
 
+	// This is the place to initialise the package slice of items
 	items, err := getAllItems()
 	if err != nil {
 		fmt.Println(err)
@@ -144,7 +144,7 @@ func bizGiveItem(name string, description string) ([]string, error) {
 		// log error
 	}
 
-	items, err = getAllItems() // in order to get item ID. pull out all items from items table in mysql again to update/overwrite items (all items slice).
+	Items, err = getAllItems() // in order to get item ID. pull out all items from items table in mysql again to update/overwrite items (all items slice).
 	if err != nil {
 		fmt.Println(err)
 		// log error
