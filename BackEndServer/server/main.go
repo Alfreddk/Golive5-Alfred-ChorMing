@@ -158,6 +158,20 @@ func editItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func allUsers(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("mysql", cfg.FormatDSN())
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
+
+	bufferMap := sqlGetAllUsers(db)
+
+	//fmt.Println(bufferMap)
+
+	json.NewEncoder(w).Encode(bufferMap)
+}
+
 /*
 // home is the handler for "/api/v1/" resource
 func home(w http.ResponseWriter, r *http.Request) {
@@ -357,6 +371,7 @@ func main() {
 	router.HandleFunc("/api/v1/allitems/", allItems).Methods("GET")
 	router.HandleFunc("/api/v1/addnewitem/", addNewItem).Methods("POST")
 	router.HandleFunc("/api/v1/edititem/", editItem).Methods("POST")
+	router.HandleFunc("/api/v1/allusers/", allUsers).Methods("GET")
 
 	/*
 		router.HandleFunc("/api/v1/", home)

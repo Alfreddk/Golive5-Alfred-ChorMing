@@ -30,7 +30,7 @@ func sqlGetAllItems(db *sql.DB) []Item {
 
 	for rows.Next() {
 		var item Item
-		err = rows.Scan(&item.ID, &item.Name, &item.Description, &item.HideGiven, &item.HideGotten, &item.HideWithdrawn, &item.GiverID, &item.GetterID, &item.State, &item.Date)
+		err = rows.Scan(&item.ID, &item.Name, &item.Description, &item.HideGiven, &item.HideGotten, &item.HideWithdrawn, &item.GiverUsername, &item.GetterUsername, &item.State, &item.Date)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -44,8 +44,8 @@ func sqlGetAllItems(db *sql.DB) []Item {
 
 //func AddNewItem(db *sql.DB, name string, desc string, hideGiven int, hideGotten int, hideWithdrawn int, giverID string, getterID string, state int, date string) {
 func sqlAddNewItem(db *sql.DB, item Item) {
-	query := fmt.Sprintf("INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverID, GetterID, State, Date) VALUES ('%s', '%s', %v, %v, %v, %v, %v, %v, '%s')",
-		item.Name, item.Description, item.HideGiven, item.HideGotten, item.HideWithdrawn, item.GiverID, item.GetterID, item.State, item.Date)
+	query := fmt.Sprintf("INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverUsername, GetterUsername, State, Date) VALUES ('%s', '%s', %v, %v, %v, %s, %s, %v, '%s')",
+		item.Name, item.Description, item.HideGiven, item.HideGotten, item.HideWithdrawn, item.GiverUsername, item.GetterUsername, item.State, item.Date)
 
 	row, err := db.Query(query)
 	if err != nil {
@@ -58,8 +58,8 @@ func sqlAddNewItem(db *sql.DB, item Item) {
 }
 
 func sqlEditItem(db *sql.DB, item Item) {
-	query := fmt.Sprintf("UPDATE Items SET HideGiven = %v, HideGotten = %v, HideWithdrawn = %v, GetterID = '%s', State = %v WHERE ID = '%s')",
-		item.HideGiven, item.HideGotten, item.HideWithdrawn, item.GetterID, item.State)
+	query := fmt.Sprintf("UPDATE Items SET HideGiven = %v, HideGotten = %v, HideWithdrawn = %v, GetterUsername = '%s', State = %v WHERE ID = '%s')",
+		item.HideGiven, item.HideGotten, item.HideWithdrawn, item.GetterUsername, item.State, item.ID)
 
 	row, err := db.Query(query)
 	if err != nil {
@@ -71,28 +71,57 @@ func sqlEditItem(db *sql.DB, item Item) {
 	// .. to log successful call.
 }
 
-/* // working...
-func sqlGetAllUsers(db *sql.DB) []Item {
-	rows, err := db.Query("Select * FROM Items")
+func sqlGetAllUsers(db *sql.DB) []User {
+	rows, err := db.Query("Select * FROM Users")
 	if err != nil {
 		panic(err.Error())
 	}
 	defer rows.Close()
 
-	var items []Item
+	var users []User
 
 	for rows.Next() {
-		var item Item
-		err = rows.Scan(&item.ID, &item.Name, &item.Description, &item.HideGiven, &item.HideGotten, &item.HideWithdrawn, &item.GiverID, &item.GetterID, &item.State, &item.Date)
+		var user User
+		err = rows.Scan(&user.ID, &user.Username, &user.Password, &user.Name, &user.Address, &user.Postal, &user.Telephone, &user.Role, &user.LastLogin)
 		if err != nil {
 			panic(err.Error())
 		}
-		items = append(items, item)
+		users = append(users, user)
 	}
 	//fmt.Println(items)
 	// .. to log successful call.
 
-	return items
+	return users
+}
+
+/*
+// alfred 23.06.2022: kiv passing JSON with map..
+func sqlGetAllUsers(db *sql.DB) map[string]User {
+	rows, err := db.Query("Select * FROM Users")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer rows.Close()
+
+	var users map[string]User
+	users = make(map[string]User)
+
+	for rows.Next() {
+		//var item Item
+		var key string
+		var user User
+
+		err = rows.Scan(&user.ID, &user.Username, &user.Password, &user.Name, &user.Address, &user.Postal, &user.Telephone, &user.LastLogin)
+		if err != nil {
+			panic(err.Error())
+		}
+		key = user.Username
+		users[key] = user
+	}
+	//fmt.Println(users)
+	// .. to log successful call.
+
+	return users
 }
 */
 
