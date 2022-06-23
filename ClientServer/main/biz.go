@@ -1,16 +1,25 @@
 package main
 
 import (
+
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+
+	"github.com/go-sql-driver/mysql"
+
 )
 
 var items []Item
 
+//var sqlDBConnection string
+var cfg mysql.Config // configuration for DSN
+
 // initialisation for business logic
 func bizInit() {
+
 	items, err := getAllItems()
 	if err != nil {
 		fmt.Println(err)
@@ -18,6 +27,59 @@ func bizInit() {
 	}
 
 	fmt.Println(items)
+
+	//	bizSqlInit()  // This is for SQL initialisation if SQL if front/back server is combined
+	bizItemListInit()
+}
+
+// Initialise the SQL server connection from main init
+func bizSqlInit() {
+	// SQL DB Data Source Name config
+	cfg = mysql.Config{
+		User:   os.Getenv("SQL_USER"),
+		Passwd: os.Getenv("SQL_PASSWORD"),
+		Net:    "tcp",
+		Addr:   os.Getenv("SQL_ADDR"),
+		DBName: os.Getenv("SQL_DB"),
+	}
+}
+
+// Iniitialises item for testing purpose
+func bizItemListInit() {
+	// date format using ISO8601
+	item1 := Item{ID: "0", Name: "Clothes", Description: "A box of 10 shirts", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-11T23:28:56.782Z"}
+	item2 := Item{ID: "1", Name: "Clothes", Description: "A box of 20 shirts", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-10T23:28:56.782Z"}
+	item3 := Item{ID: "2", Name: "Saw", Description: "A 10 inch saw", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-09T23:28:56.782Z"}
+	item4 := Item{ID: "3", Name: "Computer System", Description: "A Intel Dual Core Computer and monitor", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-08T23:28:56.782Z"}
+	item5 := Item{ID: "4", Name: "Calculator", Description: "A scientific calculator", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-07T23:28:56.782Z"}
+	item6 := Item{ID: "5", Name: "Monitor", Description: "Dell Model P2412, 24 inch Monitor", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-06T23:28:56.782Z"}
+	item7 := Item{ID: "6", Name: "Monitor", Description: "LG Model XYZ, 24 inches", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-05T23:28:56.782Z"}
+	item8 := Item{ID: "7", Name: "Clothes", Description: "A box of 20 shirts", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-04T23:28:56.782Z"}
+	item9 := Item{ID: "8", Name: "Clothes", Description: "A box of 10 shorts", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-03T23:28:56.782Z"}
+	item10 := Item{ID: "9", Name: "Bed Sheets", Description: "3 Queen size bed sheet", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-02-02T23:28:56.782Z"}
+	item11 := Item{ID: "10", Name: "Bed Sheets", Description: "3 king and 2 super singles bedsheets", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-02T23:28:56.782Z"}
+	item12 := Item{ID: "11", Name: "Shoes", Description: "2 pair of size 12 shoes for men", HideGiven: 0, HideGotten: 0, HideWithdrawn: 0,
+		GiverID: "GiverID", GetterID: "GetterID", State: 0, Date: "2022-01-01T23:28:56.782Z"}
+	items := []Item{item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12}
+
+	fmt.Println("List of Items")
+	for i, v := range items {
+		fmt.Printf("item %d:, ID: %s, Name: %s, Description: %s, HideGiven: %d, HideGotten: %d, HideWithdrawn: %d, GiverID: %s, GetterID: %s, State: %d, Date: %s\n",
+			i, v.ID, v.Name, v.Description, v.HideGiven, v.HideGotten, v.HideWithdrawn, v.GiverID, v.GetterID, v.State, v.Date)
+	}
+	//fmt.Println("List of Items", items)
+
 }
 
 // bizListSearchItems - searchs for a list of item that has name OR/AND itemDescription

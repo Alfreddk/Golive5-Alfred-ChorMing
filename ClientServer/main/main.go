@@ -153,6 +153,11 @@ func init() {
 	bPassword3, _ := bcrypt.GenerateFromPassword([]byte(password3), bcrypt.DefaultCost)
 	mapUsers[adminName3] = user{adminName3, bPassword3, "Staff3", "", "", "", ""}
 
+
+
+
+
+	// Initialise the business logic
 	bizInit()
 
 }
