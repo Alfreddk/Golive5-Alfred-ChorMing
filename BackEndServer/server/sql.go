@@ -9,14 +9,38 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+/*
 type Course struct {
 	// map this type to the record in the table
 	ID    string
 	Title string
 }
+*/
 
 var errEmptyRow = errors.New("sql: Empty Row")
 
+func GetAllItems(db *sql.DB) []Item {
+	rows, err := db.Query("Select * FROM Items")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer rows.Close()
+
+	var items []Item
+
+	for rows.Next() {
+		var item Item
+		err = rows.Scan(&item.ID, &item.Name, &item.Description, &item.HideGiven, &item.HideGotten, &item.HideWithdrawn, &item.GiverID, &item.GetterID, &item.State, &item.Date)
+		if err != nil {
+			panic(err.Error())
+		}
+		items = append(items, item)
+	}
+	fmt.Println(items)
+	return items
+}
+
+/*
 // GetRecords gets all the rows of the current table and return as a slice of map
 func GetRecords(db *sql.DB) map[string]interface{} {
 	// query to get all records of table (persons) of my_db
@@ -118,3 +142,4 @@ func InsertRecord(db *sql.DB, ID string, title string) {
 	defer row.Close()
 	fmt.Println("Insert Successful")
 }
+*/

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -18,10 +17,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+/*
 type courseInfo struct {
 	ID    string `json:"ID"`
 	Title string `json:"Title"`
 }
+*/
 
 // used for storing courses on the REST API
 //var courses map[string]courseInfo
@@ -85,6 +86,22 @@ func validKey(r *http.Request) bool {
 	}
 }
 
+func allItems(w http.ResponseWriter, r *http.Request) {
+
+	db, err := sql.Open("mysql", cfg.FormatDSN())
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
+
+	bufferMap := GetAllItems(db)
+
+	fmt.Println(bufferMap)
+
+	json.NewEncoder(w).Encode(bufferMap)
+}
+
+/*
 // home is the handler for "/api/v1/" resource
 func home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the REST API Server!")
@@ -273,19 +290,24 @@ func course(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+*/
 
 // main() main function to start the http multiplexer
 // maps URI resource to the handler
 func main() {
 
 	router := mux.NewRouter()
-	router.HandleFunc("/api/v1/", home)
-	router.HandleFunc("/api/v1/courses", allcourses)
-	// passing a variable into a path as a value to the key in {}, use curly braces {for key}
-	//.Methods limit the allow methods
-	router.HandleFunc("/api/v1/courses/{courseid}", course).Methods("GET", "PUT", "POST", "DELETE")
-	// if .Method is not defined, all methods are allowed
-	// router.HandleFunc("/api/v1/courses/{courseid}", course)
+	router.HandleFunc("/api/v1/allitems/", allItems).Methods("GET")
+
+	/*
+		router.HandleFunc("/api/v1/", home)
+		router.HandleFunc("/api/v1/courses", allcourses)
+		// passing a variable into a path as a value to the key in {}, use curly braces {for key}
+		//.Methods limit the allow methods
+		router.HandleFunc("/api/v1/courses/{courseid}", course).Methods("GET", "PUT", "POST", "DELETE")
+		// if .Method is not defined, all methods are allowed
+		// router.HandleFunc("/api/v1/courses/{courseid}", course)
+	*/
 
 	fmt.Printf("Listening at %s", hostPort)
 	// log.Fatal(http.ListenAndServe(":5000", router))
