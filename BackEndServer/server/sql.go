@@ -44,7 +44,7 @@ func sqlGetAllItems(db *sql.DB) []Item {
 
 //func AddNewItem(db *sql.DB, name string, desc string, hideGiven int, hideGotten int, hideWithdrawn int, giverID string, getterID string, state int, date string) {
 func sqlAddNewItem(db *sql.DB, item Item) {
-	query := fmt.Sprintf("INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverUsername, GetterUsername, State, Date) VALUES ('%s', '%s', %v, %v, %v, %s, %s, %v, '%s')",
+	query := fmt.Sprintf("INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverUsername, GetterUsername, State, Date) VALUES ('%s', '%s', %v, %v, %v, '%s', '%s', %v, '%s')",
 		item.Name, item.Description, item.HideGiven, item.HideGotten, item.HideWithdrawn, item.GiverUsername, item.GetterUsername, item.State, item.Date)
 
 	row, err := db.Query(query)
