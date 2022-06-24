@@ -52,6 +52,7 @@ var mapSessionSearch = map[string]string{}
 var mapSessionSelect = map[string][]string{}
 var mapSessionSort = map[string]string{}
 var mapSessionSearchedList = map[string][]Item{}
+var mapSessionMyTrayList = map[string][]Item{}
 
 var mapSessionPreviousMenu = map[string]string{}
 
@@ -357,12 +358,16 @@ func myTray(res http.ResponseWriter, req *http.Request, tray string) {
 	// List Items base on the tray type
 
 	var err error
-	listMenu.List, err = bizMyTrayItems(tray)
+	var items []Item
+	items, err = bizMyTrayItems(mapSessions[myCookie.Value], tray)
 	if err != nil {
 		http.Error(res, "Error in bizMyTrayItems ", http.StatusInternalServerError)
 		fmt.Println("Error :", err)
 		return
 	}
+
+	// convert to [] string
+	listMenu.List = convertItems2String(items)
 
 	// listMenu.List = convertToString(list)
 	fmt.Println("Tray Selected Items:", tray)
@@ -461,7 +466,7 @@ func giveItem(res http.ResponseWriter, req *http.Request) {
 	/******************************/
 	// Process the item for listing, change item to "togive" state
 
-	msg, err := bizGiveItem(name, description)
+	msg, err := bizGiveItem(mapSessions[myCookie.Value], name, description)
 	if err != nil {
 		http.Error(res, "Error in bizGiveItem ", http.StatusInternalServerError)
 		fmt.Println("Error :", err)

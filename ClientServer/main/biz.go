@@ -78,17 +78,21 @@ func bizListSearchItems(name string, description string, searchLogic string) ([]
 
 	if searchLogic == "OR" {
 		for _, v := range Items {
-			if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) ||
-				len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
-				foundList = append(foundList, v)
+			if v.State == stateToGive {
+				if (v.State == stateToGive && len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) ||
+					len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
+					foundList = append(foundList, v)
+				}
 			}
 		}
 	}
 	if searchLogic == "AND" {
 		for _, v := range Items {
-			if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) &&
-				len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
-				foundList = append(foundList, v)
+			if v.State == stateToGive {
+				if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) &&
+					len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
+					foundList = append(foundList, v)
+				}
 			}
 		}
 	}
@@ -108,11 +112,12 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 	// test data
 	// pick up the selected items, only display ID and name
 	// Need also to set the flag for the database
+	userID := mapSessions[uuid]
 	for _, v := range selectedItem {
 		intVar, _ := strconv.Atoi(v) // use this to get the integer value of the index
 		item := fmt.Sprintf("Item:%d, ID: %s, Name: %s, Description: %s", intVar+1, mapSessionSearchedList[uuid][intVar].ID,
 			mapSessionSearchedList[uuid][intVar].Name, mapSessionSearchedList[uuid][intVar].Description)
-		bizUpdateItemState(mapSessionSearchedList[uuid][intVar].ID)
+		bizUpdateItemState(userID, mapSessionSearchedList[uuid][intVar].ID)
 		msg = append(msg, item)
 	}
 
@@ -122,12 +127,17 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 
 // Update the state of the item in slice and in SQL DB
 // SQL DB need API, pending implementation
-func bizUpdateItemState(id string) {
+func bizUpdateItemState(userID string, id string) {
 	//	fmt.Println("ID:", id)
 	for i, v := range Items {
-		if v.ID == id {
-			Items[i].State = stateGiven // use index to change the state directly
-			break                       // match found, so can break
+		if v.ID == id { // search for ID to match item
+			Items[i].State = stateGiven // use index to change the state directly local DB
+			Items[i].GetterUsername = userID
+			err := editItem(Items[i]) // update remote DB with the change
+			if err != nil {
+				fmt.Println("Error", err)
+			}
+			break // match found, so can break
 		}
 	}
 }
@@ -149,14 +159,12 @@ func bizWithdrawItems(selectedItem []string) ([]string, error) {
 }
 
 // Give an item for listing
-func bizGiveItem(name string, description string) ([]string, error) {
+func bizGiveItem(userID string, name string, description string) ([]string, error) {
 
 	currentTime := time.Now()
 	date := currentTime.Format("2006-01-02")
 
-
-
-	item := Item{"", name, description, 0, 0, 0, "testuser1", "", 0, date} //GiverUsername hardcoded for testing purpose..
+	item := Item{"", name, description, 0, 0, 0, userID, "", 0, date} //GiverUsername hardcoded for testing purpose..
 
 	err := addNewItem(item) // add item to items table in mysql
 	if err != nil {
@@ -241,27 +249,46 @@ func bizGetSortedList(sortBy string) ([]string, error) {
 	return msg, nil
 }
 
-func bizMyTrayItems(tray string) ([]string, error) {
-	fmt.Println("Tray", tray)
-	// test data
-	mr1 := itemType{Id: "MR1", Name: "Clothes", Description: "A box of 10 shirts"}
-	mr2 := itemType{Id: "MR2", Name: "Clothes", Description: "A box of 20 shirts"}
-	mr3 := itemType{Id: "MR3", Name: "Saw", Description: "A 10 inch saw"}
-	mr4 := itemType{Id: "MR4", Name: "Computer", Description: "A Intel Computer and monitor"}
-	mr5 := itemType{Id: "MR5", Name: "Calculator", Description: "A scientific calculator"}
-	mr6 := itemType{Id: "MR6", Name: "Monitor", Description: "Dell Model 123"}
-	mr7 := itemType{Id: "MR7", Name: "Monitor", Description: "LG Model XYZ, 24 inche"}
-	mr8 := itemType{Id: "MR8", Name: "Clothes", Description: "A box of 10 shorts"}
-	mr9 := itemType{Id: "MR9", Name: "Bed Sheets", Description: "3 Queen size bed sheet"}
-	mr10 := itemType{Id: "MR10", Name: "Shoe", Description: "A pair of size 10 shoes for men"}
-	mr11 := itemType{Id: "MR11", Name: "Bed Sheets", Description: "3 king size bed sheet"}
-	mr12 := itemType{Id: "MR12", Name: "Shoe", Description: "A pair of size 12 shoes for men"}
-	list := []itemType{mr1, mr2, mr3, mr4, mr5, mr6, mr7, mr8, mr9, mr10, mr11, mr12}
-	//fmt.Println(list)
-	strList := convertToString(list)
+func bizMyTrayItems(userID string, tray string) ([]Item, error) {
 
-	//var test []string
-	return strList, nil
+	var trayList []Item
+
+	switch tray {
+	case "myTrayToGive":
+		// search for item with State=stateToGive
+		for _, v := range Items {
+			if v.State == stateToGive && v.GiverUsername == userID {
+				trayList = append(trayList, v)
+			}
+		}
+
+	case "myTrayGiven":
+		// search for items with State=stateGiven
+		for _, v := range Items {
+			if v.State == stateGiven && v.GiverUsername == userID && v.HideGiven == 0 {
+				trayList = append(trayList, v)
+			}
+		}
+
+	case "myTrayGotten":
+		// search for items with State=stateGiven
+		for _, v := range Items {
+			if v.State == stateGiven && v.GetterUsername == userID && v.HideGotten == 0 {
+				trayList = append(trayList, v)
+			}
+		}
+
+	case "myTrayWithdrawn":
+		// search for items with State=stateWithdrawn
+
+		for _, v := range Items {
+			if v.State == stateWithdrawn && v.GiverUsername == userID && v.HideWithdrawn == 0 {
+				trayList = append(trayList, v)
+			}
+		}
+	}
+
+	return trayList, nil
 }
 
 func getAllItems() (items []Item, err error) {
