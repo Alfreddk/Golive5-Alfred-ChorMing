@@ -16,9 +16,13 @@
 
 <form method="post">
     <b><label for ="name">Enter Name: </label></b><br>
-    <input type="text" name="name" value = "{{.DefName}}"placeholder="Item name" size="40" pattern ="[A-Za-z]+[A-Za-z0-9]?" >
+    {{if eq .PageType 1}}
+    <input type="text" name="name" value = "{{.DefName}}"placeholder="Item name" size="40"  required>
     <br>
+    {{end}}
     {{if eq .PageType 2}}
+        <input type="text" name="name" value = "{{.DefName}}"placeholder="Item name" size="40" >
+        <br>
         <input type="radio" id="or" name="searchLogic" value="OR" checked>
         <label for="or">OR</label>
         <input type="radio" id="and" name="searchLogic" value="AND">
@@ -29,10 +33,10 @@
     {{$defvalue := .DefDescription}}
     <b><label for ="Description">Enter Description: </label></b><br>
     {{if eq .PageType 1}}
-        <textarea id="description" name="description" rows="4" cols="100">{{$defvalue}}</textarea>
+        <textarea id="description" name="description" rows="4" cols="100" required>{{$defvalue}}</textarea>
     {{end}}
     {{if eq .PageType 2}}
-        <textarea id="description" name="description" rows="1" cols="50">{{$defvalue}}</textarea>
+        <textarea id="description" name="description" rows="1" cols="50" >{{$defvalue}}</textarea>
     {{/* <input type="text" name="description" value = "{{.DefDescription}}" placeholder="description" size="100" pattern ="[A-Za-z]+[A-Za-z0-9]?" ><br> */}}
     {{end}}    
     <br>
