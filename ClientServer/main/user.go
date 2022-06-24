@@ -95,6 +95,34 @@ func editUser(user User) error {
 	return errors.New("Error: resp.StatusCode is not 200")
 }
 
+func delUser(user User) error {
+
+	backendURL := "http://127.0.0.1:5000/api/v1/deleteuser/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+
+	jsonData, err := json.Marshal(user)
+	if err != nil {
+		return fmt.Errorf("Error: JSON marshaling - %v", err)
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, backendURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("Error: DELETE request - %v", err)
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("Error: DELETE request - %v", err)
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		return nil
+	}
+
+	return errors.New("Error: resp.StatusCode is not 200")
+
+}
+
 /*
 // Request for new session ID for new session
 func userRequestSessionID() {

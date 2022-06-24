@@ -4,7 +4,6 @@ package main
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -44,10 +43,13 @@ func sqlGetAllItems(db *sql.DB) []Item {
 
 //func AddNewItem(db *sql.DB, name string, desc string, hideGiven int, hideGotten int, hideWithdrawn int, giverID string, getterID string, state int, date string) {
 func sqlAddNewItem(db *sql.DB, item Item) {
-	query := fmt.Sprintf("INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverUsername, GetterUsername, State, Date) VALUES ('%s', '%s', %v, %v, %v, '%s', '%s', %v, '%s')",
-		item.Name, item.Description, item.HideGiven, item.HideGotten, item.HideWithdrawn, item.GiverUsername, item.GetterUsername, item.State, item.Date)
 
-	row, err := db.Query(query)
+	//query := fmt.Sprintf("INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverUsername, GetterUsername, State, Date) VALUES ('%s', '%s', %v, %v, %v, '%s', '%s', %v, '%s')",
+	//	item.Name, item.Description, item.HideGiven, item.HideGotten, item.HideWithdrawn, item.GiverUsername, item.GetterUsername, item.State, item.Date)
+
+	//row, err := db.Query(query)
+	row, err := db.Query("INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverUsername, GetterUsername, State, Date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		item.Name, item.Description, item.HideGiven, item.HideGotten, item.HideWithdrawn, item.GiverUsername, item.GetterUsername, item.State, item.Date)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -58,10 +60,12 @@ func sqlAddNewItem(db *sql.DB, item Item) {
 }
 
 func sqlEditItem(db *sql.DB, item Item) {
-	query := fmt.Sprintf("UPDATE Items SET HideGiven = %v, HideGotten = %v, HideWithdrawn = %v, GetterUsername = '%s', State = %v WHERE ID = '%s')",
-		item.HideGiven, item.HideGotten, item.HideWithdrawn, item.GetterUsername, item.State, item.ID)
+	//query := fmt.Sprintf("UPDATE Items SET HideGiven = %v, HideGotten = %v, HideWithdrawn = %v, GetterUsername = '%s', State = %v WHERE ID = %s",
+	//	item.HideGiven, item.HideGotten, item.HideWithdrawn, item.GetterUsername, item.State, item.ID)
 
-	row, err := db.Query(query)
+	//row, err := db.Query(query)
+	row, err := db.Query("UPDATE Items SET HideGiven = ?, HideGotten = ?, HideWithdrawn = ?, GetterUsername = ?, State = ? WHERE ID = ?",
+		item.HideGiven, item.HideGotten, item.HideWithdrawn, item.GetterUsername, item.State, item.ID)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -95,10 +99,12 @@ func sqlGetAllUsers(db *sql.DB) []User {
 }
 
 func sqlAddNewUser(db *sql.DB, user User) {
-	query := fmt.Sprintf("INSERT INTO Users (Username, Password, Name, Address, Postal, Telephone, Role, LastLogin) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-		user.Username, user.Password, user.Name, user.Address, user.Postal, user.Telephone, user.Role, user.LastLogin)
+	//query := fmt.Sprintf("INSERT INTO Users (Username, Password, Name, Address, Postal, Telephone, Role, LastLogin) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+	//	user.Username, user.Password, user.Name, user.Address, user.Postal, user.Telephone, user.Role, user.LastLogin)
 
-	row, err := db.Query(query)
+	//row, err := db.Query(query)
+	row, err := db.Query("INSERT INTO Users (Username, Password, Name, Address, Postal, Telephone, Role, LastLogin) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+		user.Username, user.Password, user.Name, user.Address, user.Postal, user.Telephone, user.Role, user.LastLogin)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -109,16 +115,32 @@ func sqlAddNewUser(db *sql.DB, user User) {
 }
 
 func sqlEditUser(db *sql.DB, user User) {
-	query := fmt.Sprintf("UPDATE User SET Username = '%s', Password = '%s', Name = '%s', Address = '%s', Postal = '%s', Telephone = '%s', LastLogin = '%s' WHERE ID = '%s')",
-		user.Username, user.Password, user.Name, user.Address, user.Postal, user.Telephone, user.LastLogin)
 
-	row, err := db.Query(query)
+	/*
+		query := fmt.Sprintf("UPDATE Users SET Username = '%s', Password = '%s', Name = '%s', Address = '%s', Postal = '%s', Telephone = '%s', LastLogin = '%s' WHERE ID = %s",
+			user.Username, user.Password, user.Name, user.Address, user.Postal, user.Telephone, user.LastLogin, user.ID)
+	*/
+
+	//query := fmt.Sprintf("UPDATE Users SET LastLogin = '%s' WHERE ID = %s", user.LastLogin, user.ID)
+	//row, err := db.Query(query)
+	row, err := db.Query("UPDATE Users SET LastLogin = ? WHERE ID = ?", user.LastLogin, user.ID)
 	if err != nil {
 		panic(err.Error())
 	}
 	defer row.Close()
 
 	//fmt.Println("Edit Successful")
+	// .. to log successful call.
+}
+
+func sqlDeleteUser(db *sql.DB, user User) {
+	row, err := db.Query("DELETE FROM Users WHERE ID = ?", user.ID)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer row.Close()
+
+	//fmt.Println("Delete Successful")
 	// .. to log successful call.
 }
 

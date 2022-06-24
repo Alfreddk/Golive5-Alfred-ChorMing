@@ -458,6 +458,7 @@ func giveItem(res http.ResponseWriter, req *http.Request) {
 	myCookie, _ := req.Cookie("myCookie")
 	name := mapSessionItemName[myCookie.Value]
 	description := mapSessionItemDescription[myCookie.Value]
+	username := mapSessions[myCookie.Value]
 	lastmenu := mapSessionPreviousMenu[myCookie.Value]
 
 	fmt.Println("Last Menu :", lastmenu)
@@ -466,7 +467,7 @@ func giveItem(res http.ResponseWriter, req *http.Request) {
 	/******************************/
 	// Process the item for listing, change item to "togive" state
 
-	msg, err := bizGiveItem(mapSessions[myCookie.Value], name, description)
+	msg, err := bizGiveItem(name, description, username)
 	if err != nil {
 		http.Error(res, "Error in bizGiveItem ", http.StatusInternalServerError)
 		fmt.Println("Error :", err)
