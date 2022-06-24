@@ -94,6 +94,34 @@ func sqlGetAllUsers(db *sql.DB) []User {
 	return users
 }
 
+func sqlAddNewUser(db *sql.DB, user User) {
+	query := fmt.Sprintf("INSERT INTO Users (Username, Password, Name, Address, Postal, Telephone, Role, LastLogin) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
+		user.Username, user.Password, user.Name, user.Address, user.Postal, user.Telephone, user.Role, user.LastLogin)
+
+	row, err := db.Query(query)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer row.Close()
+
+	//fmt.Println("Insert Successful")
+	// .. to log successful call.
+}
+
+func sqlEditUser(db *sql.DB, user User) {
+	query := fmt.Sprintf("UPDATE User SET Username = '%s', Password = '%s', Name = '%s', Address = '%s', Postal = '%s', Telephone = '%s', LastLogin = '%s' WHERE ID = '%s')",
+		user.Username, user.Password, user.Name, user.Address, user.Postal, user.Telephone, user.LastLogin)
+
+	row, err := db.Query(query)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer row.Close()
+
+	//fmt.Println("Edit Successful")
+	// .. to log successful call.
+}
+
 /*
 // alfred 23.06.2022: kiv passing JSON with map..
 func sqlGetAllUsers(db *sql.DB) map[string]User {

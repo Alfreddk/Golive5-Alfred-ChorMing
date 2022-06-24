@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,6 +21,7 @@ func userInit() {
 
 	for _, v := range users {
 		mapUsers[v.Username] = v
+		userLastVisit[v.Username] = v.LastLogin
 	}
 
 	fmt.Println(mapUsers)
@@ -49,6 +51,48 @@ func getAllUsers() (users []User, err error) {
 	}
 
 	return users, errors.New("Error: resp.StatusCode is not 200")
+}
+
+func addNewUser(user User) error {
+
+	backendURL := "http://127.0.0.1:5000/api/v1/addnewuser/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+
+	jsonData, err := json.Marshal(user)
+	if err != nil {
+		return fmt.Errorf("Error: JSON marshaling - %v", err)
+	}
+
+	resp, err := http.Post(backendURL, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("Error: POST request - %v", err)
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		return nil
+	}
+
+	return errors.New("Error: resp.StatusCode is not 200")
+}
+
+func editUser(user User) error {
+
+	backendURL := "http://127.0.0.1:5000/api/v1/edituser/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+
+	jsonData, err := json.Marshal(user)
+	if err != nil {
+		return fmt.Errorf("Error: JSON marshaling - %v", err)
+	}
+
+	resp, err := http.Post(backendURL, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("Error: POST request - %v", err)
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		return nil
+	}
+
+	return errors.New("Error: resp.StatusCode is not 200")
 }
 
 /*

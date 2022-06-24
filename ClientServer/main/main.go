@@ -148,11 +148,11 @@ func init() {
 	// template initialisation
 	tpl = template.Must(template.ParseGlob("templates/*"))
 	bPassword1, _ := bcrypt.GenerateFromPassword([]byte(password1), bcrypt.DefaultCost)
-	mapUsers[adminName1] = User{"", adminName1, string(bPassword1), "Staff1", "", "", "", ""}
+	mapUsers[adminName1] = User{"", adminName1, string(bPassword1), "Staff1", "", "", "", "", ""}
 	bPassword2, _ := bcrypt.GenerateFromPassword([]byte(password2), bcrypt.DefaultCost)
-	mapUsers[adminName2] = User{"", adminName2, string(bPassword2), "Staff2", "", "", "", ""}
+	mapUsers[adminName2] = User{"", adminName2, string(bPassword2), "Staff2", "", "", "", "", ""}
 	bPassword3, _ := bcrypt.GenerateFromPassword([]byte(password3), bcrypt.DefaultCost)
-	mapUsers[adminName3] = User{"", adminName3, string(bPassword3), "Staff3", "", "", "", ""}
+	mapUsers[adminName3] = User{"", adminName3, string(bPassword3), "Staff3", "", "", "", "", ""}
 
 	userInit()
 
@@ -210,17 +210,31 @@ func main() {
 
 // index is the Index handler
 func index(res http.ResponseWriter, req *http.Request) {
-	myUser := getUser(res, req)
+	myUser := getUser(res, req) // alfred 24.06.2022: need to look into this. does this pulls the latest LastLogin?
 
 	// update last visit status to client
-	myUser.LastLogin = userLastVisit[myUser.Username]
+	myUser.LastLogin = userLastVisit[myUser.Username] // alfred 24.06.2022: need to look into this. do we need this or is it already updated?
 
 	Trace.Println("Index")
-	regexStr := "^" + adminSubName + "$"
-	//regex := regexp.MustCompile(`(^admin\d$)`)
-	regex := regexp.MustCompile(regexStr)
 
-	if regex.MatchString(myUser.Username) {
+	/*
+		regexStr := "^" + adminSubName + "$"
+		//regex := regexp.MustCompile(`(^admin\d$)`)
+		regex := regexp.MustCompile(regexStr)
+
+
+			if regex.MatchString(myUser.Username) {
+				//admin page
+				Trace.Println("Index Admin Page")
+				tpl.ExecuteTemplate(res, "index_admin.gohtml", myUser)
+			} else {
+				// non admin page
+				Trace.Println("Index Non Admin Page")
+				tpl.ExecuteTemplate(res, "index.gohtml", myUser)
+			}
+	*/
+
+	if myUser.Role == "admin" {
 		//admin page
 		Trace.Println("Index Admin Page")
 		tpl.ExecuteTemplate(res, "index_admin.gohtml", myUser)
@@ -229,6 +243,7 @@ func index(res http.ResponseWriter, req *http.Request) {
 		Trace.Println("Index Non Admin Page")
 		tpl.ExecuteTemplate(res, "index.gohtml", myUser)
 	}
+
 }
 
 // signup handler
@@ -268,13 +283,15 @@ func signup(res http.ResponseWriter, req *http.Request) {
 		postalcode = strings.TrimSpace(postalcode)
 		telnumber = strings.TrimSpace(telnumber)
 
-		// Use this to send to backend server
-		fmt.Println("UserName :", username)
-		fmt.Println("Password :", password)
-		fmt.Println("Name :", name)
-		fmt.Println("Address :", address)
-		fmt.Println("Postal Code :", postalcode)
-		fmt.Println("Phone Number :", telnumber)
+		/*
+			// Use this to send to backend server
+			fmt.Println("UserName :", username)
+			fmt.Println("Password :", password)
+			fmt.Println("Name :", name)
+			fmt.Println("Address :", address)
+			fmt.Println("Postal Code :", postalcode)
+			fmt.Println("Phone Number :", telnumber)
+		*/
 
 		// User name , password or firstname does not meet policy
 
@@ -299,23 +316,11 @@ func signup(res http.ResponseWriter, req *http.Request) {
 		if username != "" {
 			// check if username exist
 			if _, ok := mapUsers[username]; ok {
-				userLastVisit[username] = fmt.Sprintf("Failed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm"))
+				userLastVisit[username] = fmt.Sprintf("Failed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm")) // alfred 24.06.2022: need to look at this...
 				Trace.Println("Signup failed duplicate username")
 				http.Error(res, "Username already taken", http.StatusForbidden)
 				return
 			}
-			// create session ID using cookie
-			id := uuid.NewV4()
-			myCookie := &http.Cookie{
-				Name:    "myCookie",
-				Value:   id.String(),
-				Expires: time.Now().Add(10 * time.Minute),
-			}
-			Trace.Println("Signup sucessful")
-			// prepare cookie in http header for cookie
-			http.SetCookie(res, myCookie)
-			// keep session ID with username for future login validation
-			mapSessions[myCookie.Value] = username
 
 			// generate bcrypt password Hash from the password
 			bPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -324,10 +329,45 @@ func signup(res http.ResponseWriter, req *http.Request) {
 				http.Error(res, "Internal server error", http.StatusInternalServerError)
 				return
 			}
+
 			// initialise myUser
-			myUser = User{"", username, string(bPassword), name, address, postalcode, telnumber, ""}
-			mapUsers[username] = myUser
+			myUser = User{"", username, string(bPassword), name, address, postalcode, telnumber, "user", ""}
+
+			err = addNewUser(myUser)
+			if err != nil {
+				fmt.Println(err)
+				// log error
+			}
+
+			users, err := getAllUsers()
+			if err != nil {
+				fmt.Println(err)
+				// log error
+			}
+
+			for _, v := range users {
+				mapUsers[v.Username] = v
+			}
+
+			fmt.Println(mapUsers)
+
+			//mapUsers[username] = myUser
 			userLastVisit[username] = "None"
+
+			// create session ID using cookie
+			id := uuid.NewV4()
+			myCookie := &http.Cookie{
+				Name:    "myCookie",
+				Value:   id.String(),
+				Expires: time.Now().Add(10 * time.Minute),
+			}
+
+			Trace.Println("Signup sucessful")
+			// prepare cookie in http header for cookie
+			http.SetCookie(res, myCookie)
+			// keep session ID with username for future login validation
+			mapSessions[myCookie.Value] = username
+
 		}
 		// redirect to main index
 		http.Redirect(res, req, "/", http.StatusSeeOther)
@@ -445,7 +485,7 @@ func deleteUser(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	myCookie, _ := req.Cookie("myCookie")
-	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm")))
+	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm"))) // alfred 24.06.2022: question to CM, why is this here?
 	if req.Method == http.MethodPost {
 		// get form values from browser
 		userName := req.FormValue("userName")
@@ -490,7 +530,7 @@ func deleteSession(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	myCookie, _ := req.Cookie("myCookie")
-	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm")))
+	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm"))) // alfred 24.06.2022: question to CM, why is this here?
 
 	if req.Method == http.MethodPost {
 		// get form values from browser
@@ -559,6 +599,21 @@ func updateLastVist(uuid string, status string) {
 
 	if username, ok := mapSessions[uuid]; ok { //retrieve of the session
 		userLastVisit[username] = status
+
+		/*
+			var myUser User
+
+			myUser = mapUsers[username]
+			myUser.LastLogin = status
+			mapUsers[username] = myUser // alfred 24.06.2022: update user's lastlogin record on runtime memory.
+
+			err := editUser(myUser) // alfred 24.06.2022: update user's lastlogin record to backend server.
+			if err != nil {
+				fmt.Println(err)
+				// log error
+			}
+		*/
+
 	}
 
 	// else {

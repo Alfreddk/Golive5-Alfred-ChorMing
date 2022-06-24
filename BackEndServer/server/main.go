@@ -172,6 +172,62 @@ func allUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(bufferMap)
 }
 
+func addNewUser(w http.ResponseWriter, r *http.Request) {
+
+	if r.Header.Get("Content-type") == "application/json" {
+
+		var user User
+
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			fmt.Println(err)
+			// log error
+		} else {
+			err = json.Unmarshal(reqBody, &user)
+			if err != nil {
+				fmt.Println(err)
+				// log error
+			}
+
+			db, err := sql.Open("mysql", cfg.FormatDSN())
+			if err != nil {
+				panic(err.Error())
+			}
+			defer db.Close()
+
+			sqlAddNewUser(db, user)
+
+		}
+	}
+}
+
+func editUser(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Content-type") == "application/json" {
+
+		var user User
+
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			fmt.Println(err)
+			// log error
+		} else {
+			err = json.Unmarshal(reqBody, &user)
+			if err != nil {
+				fmt.Println(err)
+				// log error
+			}
+
+			db, err := sql.Open("mysql", cfg.FormatDSN())
+			if err != nil {
+				panic(err.Error())
+			}
+			defer db.Close()
+
+			sqlEditUser(db, user)
+		}
+	}
+}
+
 /*
 // home is the handler for "/api/v1/" resource
 func home(w http.ResponseWriter, r *http.Request) {
@@ -372,6 +428,8 @@ func main() {
 	router.HandleFunc("/api/v1/addnewitem/", addNewItem).Methods("POST")
 	router.HandleFunc("/api/v1/edititem/", editItem).Methods("POST")
 	router.HandleFunc("/api/v1/allusers/", allUsers).Methods("GET")
+	router.HandleFunc("/api/v1/addnewuser/", addNewUser).Methods("POST")
+	router.HandleFunc("/api/v1/edituser/", editUser).Methods("POST")
 
 	/*
 		router.HandleFunc("/api/v1/", home)
