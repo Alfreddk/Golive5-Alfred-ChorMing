@@ -80,9 +80,7 @@ Telephone VARCHAR(10),
 Role VARCHAR(5),
 LastLogin VARCHAR(100));
 
+-- Username: testadmin, Password: testadmin
 INSERT INTO Users (Username, Password, Name, Address, Postal, Telephone, Role, LastLogin)
-VALUES ('testadmin', 'testadmin', 'testadmin', '', '', '', 'admin', '');
+VALUES ('testadmin', '$2a$10$KSF/H6rovbz1YuzaZCB6Per.zz0ELYPPlVbzUMPZFROqlf6vXIjw.', 'testadmin', '', '', '', 'admin', '');
 
--- cant be used as user password supposed to be bcryted.
-INSERT INTO Users (Username, Password, Name, Address, Postal, Telephone, Role, LastLogin)
-VALUES ('testuser1', 'testuser1', 'testuser1', '535 Clementi Rd', '599489', '64666555', 'user', '');

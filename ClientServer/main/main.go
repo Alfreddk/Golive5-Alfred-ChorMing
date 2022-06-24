@@ -600,19 +600,17 @@ func updateLastVist(uuid string, status string) {
 	if username, ok := mapSessions[uuid]; ok { //retrieve of the session
 		userLastVisit[username] = status
 
-		/*
-			var myUser User
+		var myUser User
 
-			myUser = mapUsers[username]
-			myUser.LastLogin = status
-			mapUsers[username] = myUser // alfred 24.06.2022: update user's lastlogin record on runtime memory.
+		myUser = mapUsers[username]
+		myUser.LastLogin = status
+		mapUsers[username] = myUser // alfred 24.06.2022: update user's lastlogin record on runtime memory.
 
-			err := editUser(myUser) // alfred 24.06.2022: update user's lastlogin record to backend server.
-			if err != nil {
-				fmt.Println(err)
-				// log error
-			}
-		*/
+		err := editUser(myUser) // alfred 24.06.2022: update user's lastlogin record to backend server.
+		if err != nil {
+			fmt.Println(err)
+			// log error
+		}
 
 	}
 
