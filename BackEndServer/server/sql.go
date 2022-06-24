@@ -134,6 +134,7 @@ func sqlEditUser(db *sql.DB, user User) {
 }
 
 func sqlDeleteUser(db *sql.DB, user User) {
+
 	row, err := db.Query("DELETE FROM Users WHERE ID = ?", user.ID)
 	if err != nil {
 		panic(err.Error())

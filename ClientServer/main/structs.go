@@ -35,6 +35,7 @@ const (
 	stateToGive = iota
 	stateGiven
 	stateWithdrawn
+	stateInvalid
 )
 
 type state map[int]string
@@ -43,4 +44,5 @@ var itemState = state{
 	stateToGive:    "ToGive",
 	stateGiven:     "Given",
 	stateWithdrawn: "Withdrawn",
+	stateInvalid:   "Invalid",
 }

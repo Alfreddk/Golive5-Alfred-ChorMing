@@ -490,13 +490,40 @@ func deleteUser(res http.ResponseWriter, req *http.Request) {
 		// get form values from browser
 		userName := req.FormValue("userName")
 		fmt.Println("User name :", userName)
-		// to delete the user in next state
-		mapDeletedUser[myCookie.Value] = userName
-		//delete(mapUsers, userName)
-		// test this concept
-		//		tpl.ExecuteTemplate(res, "showUser.gohtml", userName)
+
+		for _, v := range Items {
+			if v.GiverUsername == userName && v.State == stateToGive {
+				v.State = stateInvalid // change all "togive" state items listed by this user to "invalid" state on runtime memorry Items slice.
+				err := editItem(v)     // change all "togive" state items listed by this user to "invalid" state on backend mysql database.
+				if err != nil {
+					fmt.Println(err)
+					// log error
+				}
+			}
+		}
+
+		// delete user from backend server mysql database.
+		var myUser User
+		myUser = mapUsers[userName]
+		err := delUser(myUser)
+		if err != nil {
+			fmt.Println(err)
+			// log error
+		}
+
+		// delete user from runtime mapUsers.
+		delete(mapUsers, userName)
+
+		/*
+			// to delete the user in next state
+			mapDeletedUser[myCookie.Value] = userName
+			//delete(mapUsers, userName)
+			// test this concept
+			//		tpl.ExecuteTemplate(res, "showUser.gohtml", userName)
+		*/
+
 		// redirect to browse Venue List
-		http.Redirect(res, req, "/showDeletedUser", http.StatusSeeOther)
+		http.Redirect(res, req, "/showDeletedUser", http.StatusSeeOther) // alfred 24.06.2022: No longer tracking deleted users. this page is no longer relevant. CM to advise.
 		return
 	}
 
@@ -504,7 +531,7 @@ func deleteUser(res http.ResponseWriter, req *http.Request) {
 }
 
 // showDeletedUser handler
-func showDeletedUser(res http.ResponseWriter, req *http.Request) {
+func showDeletedUser(res http.ResponseWriter, req *http.Request) { // alfred 24.06.2022: No longer tracking deleted users. this func is no longer relevant. CM to advise.
 	Trace.Println("showDeleteUser")
 	if !alreadyLoggedIn(req) {
 		http.Redirect(res, req, "/", http.StatusSeeOther)
