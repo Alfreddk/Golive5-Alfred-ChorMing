@@ -1,12 +1,7 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"sort"
 	"strconv"
@@ -53,22 +48,10 @@ func bizItemListInit() {
 	Items = make([]Item, len(items))
 	copy(Items, items)
 
-	fmt.Println("List of Items")
-	for i, v := range items {
-		fmt.Printf("item %d:, ID: %s, Name: %s, Description: %s, HideGiven: %d, HideGotten: %d, HideWithdrawn: %d, GiverUsername: %s, GetterUsername: %s, State: %d, Date: %s\n",
-			i, v.ID, v.Name, v.Description, v.HideGiven, v.HideGotten, v.HideWithdrawn, v.GiverUsername, v.GetterUsername, v.State, v.Date)
-	}
-	//fmt.Println("List of Items", items)
-
 }
 
 // bizListSearchItems - searchs for a list of item that has name OR/AND itemDescription
 func bizListSearchItems(name string, description string, searchLogic string) ([]Item, error) {
-	// items, err := getAllItems()
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	// log error
-	// }
 
 	var foundList []Item
 
@@ -76,10 +59,22 @@ func bizListSearchItems(name string, description string, searchLogic string) ([]
 	name = strings.ToLower(name)
 	description = strings.ToLower(description)
 
+	// list 20 items if search entry is empty
+	if len(name)+len(description) == 0 {
+		for i, v := range Items {
+			if v.State == stateToGive {
+				foundList = append(foundList, v)
+			}
+			if i == 20 {
+				break
+			}
+		}
+	}
+
 	if searchLogic == "OR" {
 		for _, v := range Items {
 			if v.State == stateToGive {
-				if (v.State == stateToGive && len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) ||
+				if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) ||
 					len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
 					foundList = append(foundList, v)
 				}
@@ -96,13 +91,14 @@ func bizListSearchItems(name string, description string, searchLogic string) ([]
 			}
 		}
 	}
-	strList := convertItems2String(foundList)
-	fmt.Println("String List", strList)
+	//strList := convertItems2String(foundList)
+	//fmt.Println("String List", strList)
 
 	return foundList, nil
 }
 
 // Get a list of selected items
+// selected item will have item.getter = userID, and state changed to stateGiven
 func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 
 	// item list is in this map mapSessionSearchedList[uuid]
@@ -117,7 +113,8 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 		intVar, _ := strconv.Atoi(v) // use this to get the integer value of the index
 		item := fmt.Sprintf("Item:%d, ID: %s, Name: %s, Description: %s", intVar+1, mapSessionSearchedList[uuid][intVar].ID,
 			mapSessionSearchedList[uuid][intVar].Name, mapSessionSearchedList[uuid][intVar].Description)
-		bizUpdateItemState(userID, mapSessionSearchedList[uuid][intVar].ID)
+
+		bizSetItemStateToGiven(userID, mapSessionSearchedList[uuid][intVar].ID)
 		msg = append(msg, item)
 	}
 
@@ -127,7 +124,7 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 
 // Update the state of the item in slice and in SQL DB
 // SQL DB need API, pending implementation
-func bizUpdateItemState(userID string, id string) {
+func bizSetItemStateToGiven(userID string, id string) {
 	//	fmt.Println("ID:", id)
 	for i, v := range Items {
 		if v.ID == id { // search for ID to match item
@@ -143,8 +140,40 @@ func bizUpdateItemState(userID string, id string) {
 }
 
 // withdraw a list of selected items
-func bizWithdrawItems(selectedItem []string) ([]string, error) {
+// items is not displayed list
+// selected is the selected items
+func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 	var msg []string
+	var withdrawList []Item
+	withdrawList = make([]Item, len(selectedItem))
+
+	fmt.Println("Items : ", items)
+	// get the selected list to be withdrawn
+	if len(selectedItem) > 0 {
+		fmt.Println("selectedItem", selectedItem)
+		for _, v := range selectedItem {
+			intVar, _ := strconv.Atoi(v)
+			withdrawList = append(withdrawList, items[intVar])
+		}
+	}
+
+	// Set the state to withdrawn for the selected items
+	for _, v := range withdrawList {
+
+		// State change to local DB
+		setStateWithdraw(v.ID) // set item to withdrawn
+
+		// state change to SQL DB to stateWithdrawn
+		v.State = stateWithdrawn
+		err := addNewItem(v) // add item to items table in mysql
+		if err != nil {
+			fmt.Println(err)
+			// log error
+		}
+	}
+
+	fmt.Println("withdraw:", withdrawList)
+
 	num := fmt.Sprintf("Number of items Withdrawn = %d", len(selectedItem))
 	msg = append(msg, num)
 	// test data
@@ -159,7 +188,6 @@ func bizWithdrawItems(selectedItem []string) ([]string, error) {
 }
 
 // Give an item for listing
-
 func bizGiveItem(name string, description string, username string) ([]string, error) {
 
 	currentTime := time.Now()
@@ -186,70 +214,102 @@ func bizGiveItem(name string, description string, username string) ([]string, er
 
 }
 
-// Make thest Item from Tray not visible in the Tray
-func bizRemoveFromTray(selectedList []string, tray string) ([]string, error) {
+// Make these Item from Tray not visible in the Tray
+func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]string, error) {
 	fmt.Println("Tray", tray)
 
+	fmt.Println("Here!!")
+	fmt.Println("Item to be withdrawn", items)
+	fmt.Println("Item index", selectedList)
+
 	var msg []string
-	num := fmt.Sprintf("Number of items Withdrawn = %d", len(selectedList))
+	var num string
+	var hideList []Item // final selected list to hide
+	if len(selectedList) == 0 {
+		num = "Nothing to Withdraw"
+	} else {
+		// get the items list for hiding
+		for _, v := range selectedList {
+			intVar, _ := strconv.Atoi(v)
+			hideList = append(hideList, items[intVar])
+		}
+		// Set up hide flag in local db
+		for _, v := range hideList {
+			hideItem(tray, v.ID)
+			switch tray {
+			case "myTrayGiven":
+				v.HideGiven = 1
+			case "myTrayGotten":
+				//v.HideGottem = 1
+			case "myTrayWithdrawn":
+				v.HideWithdrawn = 1
+			}
+			// update SQL DB
+			err := editItem(v)
+			if err != nil {
+				fmt.Println("Error :", err)
+			}
+		}
+		num = fmt.Sprintf("Number of items removed from Tray = %d", len(selectedList))
+	}
 	msg = append(msg, num)
 
-	switch tray {
-	case "myTrayGiven":
-		// test data
-		for _, v := range selectedList {
-			item := fmt.Sprintf("item %v, removed from Given Tray", v)
-			msg = append(msg, item)
-		}
+	fmt.Println("tray Type:", tray)
+	fmt.Println("hide List", hideList)
 
-	case "myTrayGotten":
-		// test data
-		for _, v := range selectedList {
-			item := fmt.Sprintf("item %v, removed from Gotten Tray", v)
-			msg = append(msg, item)
-		}
-
-	case "myTrayWithdrawn":
-		// test data
-		for _, v := range selectedList {
-			item := fmt.Sprintf("item %v, removed from Withdrawn Tray", v)
-			msg = append(msg, item)
-		}
-	}
-
+	fmt.Println("Items ", msg)
 	// var test []string
 	return msg, nil
 }
 
-// Get a list of sorted data
+// Get a list of sorted data based on the sorted key
 func bizGetSortedList(sortBy string) ([]string, error) {
 	fmt.Println("Sort By:", sortBy)
 
-	// make an empty list before sort
+	// make a copy of the list before sort
 	items := make([]Item, len(Items))
 	copy(items, Items) // deep copy
 
+	var msg []string
 	switch sortBy {
 	case "0":
-		// unsorted list
+		msg = convertItems2String(items)
 	case "1":
-		sort.SliceStable(items, func(i, j int) bool { return items[i].Name < items[j].Name })
+		sort.SliceStable(items, func(i, j int) bool {
+			return items[i].Name < items[j].Name
+		})
+		msg = convertNameFirst2String(items)
 	case "2":
-		sort.SliceStable(items, func(i, j int) bool { return items[i].State < items[j].State })
+		sort.SliceStable(items, func(i, j int) bool {
+			return items[i].State < items[j].State
+		})
+		msg = convertStateFirst2String(items)
 	case "3":
-		sort.SliceStable(items, func(i, j int) bool { return items[i].Date < items[j].Date })
+		sort.SliceStable(items, func(i, j int) bool {
+			return items[i].Date < items[j].Date
+		})
+		msg = convertDateFirst2String(items)
 	case "4":
-		sort.SliceStable(items, func(i, j int) bool { return items[i].GiverUsername < items[j].GiverUsername }) //alfred 23.06.2022: ChorMing you need to relook into this. Changed from ID to username.
+		sort.SliceStable(items, func(i, j int) bool {
+			return items[i].GiverUsername < items[j].GiverUsername
+		}) //alfred 23.06.2022: ChorMing you need to relook into this. Changed from ID to username.
+		msg = convertGiverIDFirst2String(items)
 	case "5":
-		sort.SliceStable(items, func(i, j int) bool { return items[i].GetterUsername < items[j].GetterUsername }) //alfred 23.06.2022: ChorMing you need to relook into this. Changed from ID to username.
+		sort.SliceStable(items, func(i, j int) bool {
+			return items[i].GetterUsername < items[j].GetterUsername
+		}) //alfred 23.06.2022: ChorMing you need to relook into this. Changed from ID to username.
+		msg = convertGetterIDFirst2String(items)
 	}
-
-	msg := convertItems2String(items)
 
 	//	var test []string
 	return msg, nil
 }
 
+// collect a list of items for myTray
+// myTrayToGive - Item given but not received
+// myTrayGiven - Item Received by Given
+// myTrayGotten - Not used
+// myTrayWithdrawn - Item to give but withdrawn before any taker
 func bizMyTrayItems(userID string, tray string) ([]Item, error) {
 
 	var trayList []Item
@@ -292,70 +352,40 @@ func bizMyTrayItems(userID string, tray string) ([]Item, error) {
 	return trayList, nil
 }
 
-func getAllItems() (items []Item, err error) {
+// hide the item for the local db that match the id
+func hideItem(tray string, id string) {
 
-	items = []Item{}
-
-	backendURL := "http://127.0.0.1:5000/api/v1/allitems/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
-
-	resp, err := http.Get(backendURL)
-	if err != nil {
-		return items, fmt.Errorf("Error: POST request - %v", err)
-	}
-
-	if resp.StatusCode == http.StatusOK {
-		respData, _ := io.ReadAll(resp.Body)
-		defer resp.Body.Close()
-
-		err := json.Unmarshal(respData, &items)
-		if err != nil {
-			return items, fmt.Errorf("Error: JSON unmarshaling session - %v", err)
+	switch tray {
+	case "myTrayGiven":
+		for i, v := range Items {
+			if v.ID == id {
+				Items[i].HideGiven = 1
+				break
+			}
 		}
-
-		return items, nil
+	case "myTrayGotten":
+		for i, v := range Items {
+			if v.ID == id {
+				Items[i].HideGotten = 1
+				break
+			}
+		}
+	case "myTrayWithdrawn":
+		for i, v := range Items {
+			if v.ID == id {
+				Items[i].HideWithdrawn = 1
+				break
+			}
+		}
 	}
-
-	return items, errors.New("Error: resp.StatusCode is not 200")
 }
 
-func addNewItem(item Item) error {
+func setStateWithdraw(id string) {
 
-	backendURL := "http://127.0.0.1:5000/api/v1/addnewitem/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
-
-	jsonData, err := json.Marshal(item)
-	if err != nil {
-		return fmt.Errorf("Error: JSON marshaling - %v", err)
+	for i, v := range Items {
+		if v.ID == id {
+			Items[i].State = stateWithdrawn
+			break
+		}
 	}
-
-	resp, err := http.Post(backendURL, "application/json", bytes.NewBuffer(jsonData))
-	if err != nil {
-		return fmt.Errorf("Error: POST request - %v", err)
-	}
-
-	if resp.StatusCode == http.StatusOK {
-		return nil
-	}
-
-	return errors.New("Error: resp.StatusCode is not 200")
-}
-
-func editItem(item Item) error { // alfred 23.06.2022: not tested...
-
-	backendURL := "http://127.0.0.1:5000/api/v1/edititem/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
-
-	jsonData, err := json.Marshal(item)
-	if err != nil {
-		return fmt.Errorf("Error: JSON marshaling - %v", err)
-	}
-
-	resp, err := http.Post(backendURL, "application/json", bytes.NewBuffer(jsonData))
-	if err != nil {
-		return fmt.Errorf("Error: POST request - %v", err)
-	}
-
-	if resp.StatusCode == http.StatusOK {
-		return nil
-	}
-
-	return errors.New("Error: resp.StatusCode is not 200")
 }
