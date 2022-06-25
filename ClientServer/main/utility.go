@@ -5,6 +5,7 @@ import (
 	"strconv"
 )
 
+/* // alfred 24.06.2022: not used.
 // mapKeyPresent implement the method to check the the presence of the key for
 // monthMapType
 func (m monthMapType) mapKeyPresent(k int) (ok bool) {
@@ -64,6 +65,7 @@ func convertDateType_toYYYYMMDD(date dateType) string {
 	return yyyyMMdd
 }
 
+
 //ShowIndex displays the index of the value passed if it is positive
 // display index value if index > 0, otherwise displays "Not Found"
 func showIndex(index int) {
@@ -83,6 +85,7 @@ func getDefValue(currentValue int, unInitialisedValue int, initialValue int) int
 		return currentValue
 	}
 }
+*/
 
 // sanitizeAtoi convert from Ascii to Integer.
 // Checks that input string number is within "first" and "last" integer converted string value,
@@ -98,6 +101,7 @@ func sanitizeAtoi(input string, first int, last int) int {
 	}
 }
 
+/* // alfred 24.06.2022: not used.
 // Convert items data to string slices
 func convertToString(data []itemType) []string {
 	listdata := []string{}
@@ -108,8 +112,9 @@ func convertToString(data []itemType) []string {
 
 	return listdata
 }
+*/
 
-// Convert items data to string slices
+// ConvertItems2String converts items data to string slices.
 func convertItems2String(data []Item) []string {
 
 	fmt.Println("convertItems2String")
@@ -117,9 +122,9 @@ func convertItems2String(data []Item) []string {
 	for _, v := range data {
 		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
 		//state := fmt.Sprintf("%d", v.State)
-		listdata = append(listdata, "ID:"+v.ID+",  Name:"+v.Name+",  Description:"+v.Description+
-			",  State:"+itemState[v.State]+",  Hide:"+hideStatus+",  GiverID:"+v.GiverUsername+
-			",  GetterID:"+v.GetterUsername+",  Date:"+v.Date)
+		listdata = append(listdata, "ID: "+v.ID+",  Name: "+v.Name+",  Description: "+v.Description+
+			",  State: "+itemState[v.State]+",  Hide: "+hideStatus+",  GiverUsername: "+v.GiverUsername+
+			",  GetterUsername: "+v.GetterUsername+",  Date: "+v.Date)
 	}
 	return listdata
 }
