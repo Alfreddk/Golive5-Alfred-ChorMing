@@ -24,6 +24,13 @@
 {{if eq .PageType 5}} 
 <h1>Item Given - Thank you</h1>
 {{end}}
+{{if eq .PageType 6}} 
+<h1>Givers Details</h1>
+{{end}}
+{{if eq .PageType 7}} 
+<h1>Getters Details</h1>
+{{end}}
+
 
 {{if .Msg}}
     <h3>Status :</h3>
@@ -34,6 +41,16 @@
 {{if eq .PageType 1}}  
 <br>
 <input type=button onClick="location.href ='/displaySelect'" value='Back'>
+<br>
+{{end}}
+{{if eq .PageType 6}}  
+<br>
+<input type=button onClick="location.href ='/myTrayGotten'" value='Back'>
+<br>
+{{end}}
+{{if eq .PageType 7}}  
+<br>
+<input type=button onClick="location.href ='/myTrayGiven'" value='Back'>
 <br>
 {{end}}
 <br>

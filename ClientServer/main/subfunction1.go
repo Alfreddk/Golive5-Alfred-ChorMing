@@ -124,33 +124,35 @@ func postRedirectPickItems(uuid string, res http.ResponseWriter,
 		// mapSessionSelect[uuid] = selected
 		req.ParseForm()
 		selected := req.Form["selected"]
+		submit := req.Form["submit"] // get the submit button
+		fmt.Println("Submit =", submit[0])
+
 		mapSessionSelect[uuid] = make([]string, len(selected))
 		mapSessionSelect[uuid] = selected
 		fmt.Printf("Selected Item: %v, Type: %T\n", selected, selected)
 		fmt.Println("MapSessionSelect", mapSessionSelect[uuid])
 
-		// selective redirect to based on last menu
-		switch mapSessionPreviousMenu[uuid] {
-		case "myTrayToGive":
+		//selective redirect to based on submit button
+		switch submit[0] {
+		case "Withdraw Item":
 			http.Redirect(res, req, "/withdrawItem", http.StatusSeeOther)
 			return
 
-		case "myTrayGiven":
-			fmt.Println("Tray-myTrayGiven")
-			http.Redirect(res, req, "/removeFromMyTray", http.StatusSeeOther)
+		case "View Giver Details":
+			http.Redirect(res, req, "/viewGiverDetails", http.StatusSeeOther)
 			return
 
-		case "myTrayGotten":
-			fmt.Println("Tray-myTrayGotten")
-			http.Redirect(res, req, "/removeFromMyTray", http.StatusSeeOther)
+		case "View Getter Details":
+			http.Redirect(res, req, "/viewGetterDetails", http.StatusSeeOther)
 			return
 
-		case "myTrayWithdrawn":
+		// common for Given Items, Gotten items, Withdrawn Items
+		case "Remove From Tray":
 			fmt.Println("Tray-myWithdrawn")
 			http.Redirect(res, req, "/removeFromMyTray", http.StatusSeeOther)
 			return
 
-		case "showSearchList":
+		case "Get Items":
 			fmt.Println("Search List")
 			http.Redirect(res, req, "/getListedItems", http.StatusSeeOther)
 			return
@@ -423,11 +425,6 @@ func getListedItems(res http.ResponseWriter, req *http.Request) {
 	}
 	/******************************/
 
-	//msg := fmt.Sprintf("Items are moved from listing into Gotten Tray")
-	// var msg []string
-	// msg = append(msg, "Item1 Gotten")
-	// msg = append(msg, "Item2 Gotten")
-
 	showMessages(res, req, 4, msg)
 }
 
@@ -456,10 +453,7 @@ func giveItem(res http.ResponseWriter, req *http.Request) {
 		fmt.Println("Error :", err)
 		return
 	}
-
 	/******************************/
-	// var msg []string
-	// msg = append(msg, "Item Given :"+name+", "+description+" is given") // One one item
 
 	showMessages(res, req, 5, msg)
 }
@@ -488,11 +482,6 @@ func removeFromMyTray(res http.ResponseWriter, req *http.Request) {
 		fmt.Println("Error :", err)
 		return
 	}
-	// var msg []string
-	// msg1 := fmt.Sprintf("list of items are removed from %s", tray)
-	// msg = append(msg, msg1)
-	// msg = append(msg, "Item1 removed from Tray")
-	// msg = append(msg, "Item2 removed from Tray")
 
 	showMessages(res, req, 3, msg)
 }
@@ -541,10 +530,54 @@ func displayList(res http.ResponseWriter, req *http.Request) {
 	// // Get the sorted list here !!
 	msg, err := bizGetSortedList(sortBy)
 	if err != nil {
-		http.Error(res, "Error in bizGetSortedList", http.StatusInternalServerError)
-		fmt.Println("Error :", err)
+		http.Error(res, "Server Error", http.StatusInternalServerError)
+		fmt.Println("Error in bizGetSortedList :", err)
 		return
 	}
 
 	showMessages(res, req, 1, msg)
+}
+
+func viewGiverDetails(res http.ResponseWriter, req *http.Request) {
+
+	if !alreadyLoggedIn(req) {
+		http.Redirect(res, req, "/", http.StatusSeeOther)
+		return
+	}
+	myCookie, _ := req.Cookie("myCookie")
+	selectedList := mapSessionSelect[myCookie.Value]
+
+	fmt.Println("Selected :", selectedList)
+	msg1, err := bizGetItemWithGiverDetails(mapSessionMyTrayList[myCookie.Value], selectedList)
+	if err != nil {
+		http.Error(res, "Server Error", http.StatusInternalServerError)
+		fmt.Println("Error in bizGetItemWithGiverDetails:", err)
+		return
+	}
+	//fmt.Println("msg1 :", msg1)
+
+	fmt.Println("viewGiverDetails")
+	showMessages(res, req, 6, msg1)
+}
+
+func viewGetterDetails(res http.ResponseWriter, req *http.Request) {
+
+	if !alreadyLoggedIn(req) {
+		http.Redirect(res, req, "/", http.StatusSeeOther)
+		return
+	}
+	myCookie, _ := req.Cookie("myCookie")
+	selectedList := mapSessionSelect[myCookie.Value]
+	fmt.Println("Selected :", selectedList)
+	msg1, err := bizGetItemWithGetterDetails(mapSessionMyTrayList[myCookie.Value], selectedList)
+	if err != nil {
+		http.Error(res, "Server Error", http.StatusInternalServerError)
+		fmt.Println("Error in bizGetItemWithGetterDetails :", err)
+		return
+	}
+	//fmt.Println("msg1 :", msg1)
+
+	fmt.Println("viewGetterDetails")
+
+	showMessages(res, req, 7, msg1)
 }

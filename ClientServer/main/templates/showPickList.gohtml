@@ -37,19 +37,19 @@
     {{end}}
     <br>
     {{if eq .PageType 1}}  
-    <input type="submit", value = "Withdraw Item">
+    <input type="submit", name="submit" value = "Withdraw Item">
     {{end}}
     {{if eq .PageType 2}}  
-    <input type="submit", value = "Remove From Tray">
+    <input type="submit", name="submit" value = "Remove From Tray"> <input type="submit", name="submit" value = "View Getter Details">
     {{end}}
     {{if eq .PageType 3}}  
-    <input type="submit", value = "Remove From Tray">
+    <input type="submit", name="submit" value = "Remove From Tray"> <input type="submit", name="submit" value = "View Giver Details">
     {{end}}
     {{if eq .PageType 4}}  
-    <input type="submit", value = "Remove From Tray">
+    <input type="submit", name="submit" value = "Remove From Tray">
     {{end}}
     {{if eq .PageType 5}}  
-    <input type="submit", value = "Get the Items">
+    <input type="submit", name="submit" value = "Get Items">
     {{end}}
 </form>
 {{end}}

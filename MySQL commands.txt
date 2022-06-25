@@ -69,18 +69,3 @@ WHERE ID = 2;
 
 
 
-CREATE TABLE Users (
-ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-Username VARCHAR(50),
-Password VARCHAR(255),
-Name VARCHAR(50),
-Address VARCHAR(100),
-Postal VARCHAR(10),
-Telephone VARCHAR(10),
-Role VARCHAR(5),
-LastLogin VARCHAR(100));
-
--- Username: testadmin, Password: testadmin
-INSERT INTO Users (Username, Password, Name, Address, Postal, Telephone, Role, LastLogin)
-VALUES ('testadmin', '$2a$10$KSF/H6rovbz1YuzaZCB6Per.zz0ELYPPlVbzUMPZFROqlf6vXIjw.', 'testadmin', '', '', '', 'admin', '');
-

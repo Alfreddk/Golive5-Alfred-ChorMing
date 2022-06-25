@@ -202,6 +202,8 @@ func main() {
 	r.HandleFunc("/myTrayWithdrawn", myTrayWithdrawn)
 	r.HandleFunc("/removeFromMyTray", removeFromMyTray)
 	r.HandleFunc("/withdrawItem", withdrawItem)
+	r.HandleFunc("/viewGiverDetails", viewGiverDetails)
+	r.HandleFunc("/viewGetterDetails", viewGetterDetails)
 
 	http.ListenAndServe(vrsHost+":"+vrsPort, nil)
 	// Using Open SSL certification and key for development and testing only

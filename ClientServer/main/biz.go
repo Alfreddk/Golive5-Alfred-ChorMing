@@ -74,36 +74,20 @@ func bizListSearchItems(name string, description string, searchLogic string) ([]
 	if searchLogic == "OR" {
 		for _, v := range Items {
 			if v.State == stateToGive {
-				if len(name) == 0 {
-					foundList = append(foundList, v)
-				} else if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) ||
+				if (v.State == stateToGive && len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) ||
 					len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
 					foundList = append(foundList, v)
 				}
-				/*
-					if (v.State == stateToGive && len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) ||
-						len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
-						foundList = append(foundList, v)
-					}
-				*/
 			}
 		}
 	}
 	if searchLogic == "AND" {
 		for _, v := range Items {
 			if v.State == stateToGive {
-				if len(name) == 0 && len(description) == 0 {
-					foundList = append(foundList, v)
-				} else if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) &&
+				if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) &&
 					len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
 					foundList = append(foundList, v)
 				}
-				/*
-					if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) &&
-						len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
-						foundList = append(foundList, v)
-					}
-				*/
 			}
 		}
 	}
@@ -203,7 +187,6 @@ func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 
 }
 
-
 // bizGiveItem allows user to list an item by providing a item name and description.
 // Item listed will be added to backend server mysql database
 func bizGiveItem(name string, description string, username string) ([]string, error) {
@@ -226,7 +209,7 @@ func bizGiveItem(name string, description string, username string) ([]string, er
 	}
 
 	var msg []string
-	msg = append(msg, "Item Given :"+name+", "+description+" is moved to To-Give Tray")
+	msg = append(msg, "Item : "+name+", "+description+"  ===> To-Give Tray")
 
 	return msg, nil
 
@@ -244,7 +227,7 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 	var num string
 	var hideList []Item // final selected list to hide
 	if len(selectedList) == 0 {
-		num = "Nothing to Withdraw"
+		num = "Nothing to Remove"
 	} else {
 		// get the items list for hiding
 		for _, v := range selectedList {
@@ -277,6 +260,94 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 
 	fmt.Println("Items ", msg)
 	// var test []string
+	return msg, nil
+}
+
+func bizGetItemWithGiverDetails(items []Item, selectedList []string) ([]string, error) {
+	var msg []string
+
+	//	var filteredList []Item // final selected list to hide
+
+	fmt.Println("Items", items)
+	fmt.Println("Select", selectedList)
+	// pause
+	//fmt.Scanln()
+
+	if len(selectedList) == 0 {
+		msg = append(msg, "Nothing Selected")
+	} else {
+		// // get the items list first
+		// for _, v := range selectedList {
+		// 	intVar, _ := strconv.Atoi(v)
+		// 	filteredList = append(filteredList, items[intVar])
+		// }
+		// Set up hide flag in local db
+		//var str1, str2, str3, str4 string
+		for _, v := range selectedList {
+			intVar, _ := strconv.Atoi(v)
+			item := items[intVar]
+
+			formGiverGetterDetails(&msg, "Giver", item.GiverUsername, item)
+			// str1 = "ID: " + item.ID + ",  Name: " + item.Name + ",  Summary: " + item.Description
+			// //str = "ID: " + item.ID + ",  Name: " + item.Name + ",  Summary: " + item.Description +
+			// str2 = "Getter Contact:"
+			// str3 = "Name: " + mapUsers[item.GetterUsername].Name + "  Phone:  " + mapUsers[item.GetterUsername].Telephone
+			// str4 = "Address:  " + mapUsers[item.GetterUsername].Address
+			// fmt.Println("str", str1)
+			// fmt.Println("str2 =", str2)
+			// fmt.Println("str2 =", str3)
+			// msg = append(msg, str1)
+			// msg = append(msg, str2)
+			// msg = append(msg, str3)
+			// msg = append(msg, str4)
+			msg = append(msg, "\n")
+		}
+	}
+	return msg, nil
+}
+
+func bizGetItemWithGetterDetails(items []Item, selectedList []string) ([]string, error) {
+	var msg []string
+
+	//	var filteredList []Item // final selected list to hide
+	fmt.Println("Items", items)
+	fmt.Println("Select", selectedList)
+
+	if len(selectedList) == 0 {
+		msg = append(msg, "Nothing Selected")
+	} else {
+		// // get the items list first
+		// for _, v := range selectedList {
+		// 	intVar, _ := strconv.Atoi(v)
+		// 	filteredList = append(filteredList, items[intVar])
+		// }
+		// Set up hide flag in local db
+		//var str1, str2, str3, str4 string
+		for _, v := range selectedList {
+			intVar, _ := strconv.Atoi(v)
+			item := items[intVar]
+			formGiverGetterDetails(&msg, "Getter", item.GetterUsername, item)
+
+			// str1 = "ID: " + item.ID + ",  Name: " + item.Name + ",  Summary: " + item.Description
+			// //str = "ID: " + item.ID + ",  Name: " + item.Name + ",  Summary: " + item.Description +
+			// str2 = "Getter Contact:"
+			// str3 = "Name: " + mapUsers[item.GetterUsername].Name + "  Phone:  " + mapUsers[item.GetterUsername].Telephone
+			// str4 = "Address:  " + mapUsers[item.GetterUsername].Address
+			// fmt.Println("str", str1)
+			// fmt.Println("str2 =", str2)
+			// fmt.Println("str2 =", str3)
+			// msg = append(msg, str1)
+			// msg = append(msg, str2)
+			// msg = append(msg, str3)
+			// msg = append(msg, str4)
+			msg = append(msg, "\n")
+		}
+	}
+
+	fmt.Println("msg", msg)
+	// pause
+	//fmt.Scanln()
+
 	return msg, nil
 }
 
