@@ -165,7 +165,9 @@ func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 
 		// state change to SQL DB to stateWithdrawn
 		v.State = stateWithdrawn
-		err := addNewItem(v) // add item to items table in mysql
+
+		// err := addNewItem(v) // add item to items table in mysql // alfred 25.06.2022: wrong call to mysql.
+		err := editItem(v)
 		if err != nil {
 			fmt.Println(err)
 			// log error
@@ -220,7 +222,7 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 	fmt.Println("Tray", tray)
 
 	fmt.Println("Here!!")
-	fmt.Println("Item to be withdrawn", items)
+	fmt.Println("Item to be withdrawn", items) // alfred 25.06.2022: item to be withdrawn?
 	fmt.Println("Item index", selectedList)
 
 	var msg []string
@@ -241,7 +243,8 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 			case "myTrayGiven":
 				v.HideGiven = 1
 			case "myTrayGotten":
-				//v.HideGottem = 1
+				//v.HideGottem = 1 // alfred 25.06.2022: typo and commented out.
+				v.HideGotten = 1
 			case "myTrayWithdrawn":
 				v.HideWithdrawn = 1
 			}
