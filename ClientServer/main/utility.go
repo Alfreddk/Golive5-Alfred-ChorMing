@@ -116,15 +116,100 @@ func convertToString(data []itemType) []string {
 
 // ConvertItems2String converts items data to string slices.
 func convertItems2String(data []Item) []string {
-	listdata := []string{}
 
+	fmt.Println("convertItems2String")
+	listdata := []string{}
 	for _, v := range data {
 		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
 		//state := fmt.Sprintf("%d", v.State)
-		listdata = append(listdata, "ID: "+v.ID+", Name: "+v.Name+", Description: "+v.Description+
-
-			", State: "+itemState[v.State]+", Hide: "+hideStatus+", GiverUsername: "+v.GiverUsername+", GetterUsername: "+v.GetterUsername+", Date: "+v.Date)
+		listdata = append(listdata, "ID: "+v.ID+",  Name: "+v.Name+",  Description: "+v.Description+
+			",  State: "+itemState[v.State]+",  Hide: "+hideStatus+",  GiverUsername: "+v.GiverUsername+
+			",  GetterUsername: "+v.GetterUsername+",  Date: "+v.Date)
 	}
+	return listdata
+}
+
+// Convert items data to string slices
+func convertNameFirst2String(data []Item) []string {
+
+	listdata := []string{}
+	for _, v := range data {
+		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
+		//state := fmt.Sprintf("%d", v.State)
+		listdata = append(listdata, "Name:"+v.Name+",  ID:"+v.ID+",  Description:"+v.Description+
+			",  State:"+itemState[v.State]+",  Hide:"+hideStatus+",  GiverID:"+v.GiverUsername+
+			",  GetterID:"+v.GetterUsername+",  Date:"+v.Date)
+	}
+	return listdata
+}
+
+// Convert items data to string slices
+func convertStateFirst2String(data []Item) []string {
+
 	fmt.Println("convertItems2String")
+	listdata := []string{}
+	for _, v := range data {
+		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
+		//state := fmt.Sprintf("%d", v.State)
+		listdata = append(listdata, "State:"+itemState[v.State]+",  ID:"+v.ID+",  Name:"+v.Name+
+			",  Description:"+v.Description+",  Hide:"+hideStatus+",  GiverID:"+v.GiverUsername+
+			",  GetterID:"+v.GetterUsername+",  Date:"+v.Date)
+	}
+	return listdata
+}
+
+// Convert items data to string slices
+func convertDateFirst2String(data []Item) []string {
+
+	fmt.Println("convertItems2String")
+	listdata := []string{}
+	for _, v := range data {
+		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
+		//state := fmt.Sprintf("%d", v.State)
+		listdata = append(listdata, "Date:"+v.Date+",  ID:"+v.ID+",  Name:"+v.Name+",  Description:"+v.Description+
+			",  State:"+itemState[v.State]+",  Hide:"+hideStatus+",  GiverID:"+v.GiverUsername+
+			",  GetterID:"+v.GetterUsername)
+	}
+	return listdata
+}
+
+// Convert items data to string slices
+func convertGiverIDFirst2String(data []Item) []string {
+
+	fmt.Println("convertItems2String")
+	listdata := []string{}
+	for _, v := range data {
+		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
+		//state := fmt.Sprintf("%d", v.State)
+		listdata = append(listdata, "GiverID:"+v.GiverUsername+",  ID:"+v.ID+",  Name:"+v.Name+",  Description:"+v.Description+
+			",  State:"+itemState[v.State]+", Hide:"+hideStatus+
+			",  GetterID:"+v.GetterUsername+",  Date:"+v.Date)
+	}
+	return listdata
+}
+
+// Convert items data to string slices
+func convertGetterIDFirst2String(data []Item) []string {
+
+	fmt.Println("convertItems2String")
+	listdata := []string{}
+	for _, v := range data {
+		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
+		//state := fmt.Sprintf("%d", v.State)
+		listdata = append(listdata, "GetterID:"+v.GetterUsername+",  ID:"+v.ID+",  Name:"+v.Name+",  Description:"+v.Description+
+			",  State:"+itemState[v.State]+",  Hide:"+hideStatus+",  GiverID:"+v.GiverUsername+
+			",  Date:"+v.Date)
+	}
+	return listdata
+}
+
+// Convert items data to string slices
+func showIdNameDescriptionDate2String(data []Item) []string {
+
+	fmt.Println("showIdNameDescriptionDate2String")
+	listdata := []string{}
+	for _, v := range data {
+		listdata = append(listdata, "ID:"+v.ID+",  Name:"+v.Name+",  Summary:"+v.Description+",  Given On:"+v.Date)
+	}
 	return listdata
 }
