@@ -62,13 +62,8 @@ func bizItemListInit() {
 
 }
 
-// bizListSearchItems - searchs for a list of item that has name OR/AND itemDescription
+// bizListSearchItems searchs for and returns a list of items that has item name OR/AND Description. If item name OR/AND description were left blank, it returns a complete list of available items.
 func bizListSearchItems(name string, description string, searchLogic string) ([]Item, error) {
-	// items, err := getAllItems()
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	// log error
-	// }
 
 	var foundList []Item
 
@@ -79,20 +74,36 @@ func bizListSearchItems(name string, description string, searchLogic string) ([]
 	if searchLogic == "OR" {
 		for _, v := range Items {
 			if v.State == stateToGive {
-				if (v.State == stateToGive && len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) ||
+				if len(name) == 0 {
+					foundList = append(foundList, v)
+				} else if (v.State == stateToGive && len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) ||
 					len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
 					foundList = append(foundList, v)
 				}
+				/*
+					if (v.State == stateToGive && len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) ||
+						len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
+						foundList = append(foundList, v)
+					}
+				*/
 			}
 		}
 	}
 	if searchLogic == "AND" {
 		for _, v := range Items {
 			if v.State == stateToGive {
-				if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) &&
+				if len(name) == 0 && len(description) == 0 {
+					foundList = append(foundList, v)
+				} else if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) &&
 					len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
 					foundList = append(foundList, v)
 				}
+				/*
+					if (len(name) > 0 && strings.Contains(strings.ToLower(v.Name), name)) &&
+						len(description) > 0 && strings.Contains(strings.ToLower(v.Description), description) {
+						foundList = append(foundList, v)
+					}
+				*/
 			}
 		}
 	}
@@ -158,14 +169,14 @@ func bizWithdrawItems(selectedItem []string) ([]string, error) {
 
 }
 
-// Give an item for listing
-
+// bizGiveItem allows user to list an item by providing a item name and description.
+// Item listed will be added to backend server mysql database
 func bizGiveItem(name string, description string, username string) ([]string, error) {
 
 	currentTime := time.Now()
 	date := currentTime.Format("2006-01-02")
 
-	item := Item{"", name, description, 0, 0, 0, username, "", 0, date} //GiverUsername hardcoded for testing purpose..
+	item := Item{"", name, description, 0, 0, 0, username, "", 0, date}
 
 	err := addNewItem(item) // add item to items table in mysql
 	if err != nil {

@@ -1,5 +1,6 @@
 package main
 
+/* // alfred 24.06.2022: not used.
 import (
 	"errors"
 	"fmt"
@@ -613,3 +614,4 @@ func recursiveBinSortedFindFirst2(b *[]*booking, target booking, key bookingKeyT
 	showIndex(index)
 	return index, err
 }
+*/
