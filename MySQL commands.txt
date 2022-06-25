@@ -82,5 +82,8 @@ LastLogin VARCHAR(100));
 
 -- Username: testadmin, Password: testadmin
 INSERT INTO Users (Username, Password, Name, Address, Postal, Telephone, Role, LastLogin)
-VALUES ('testadmin', '$2a$10$KSF/H6rovbz1YuzaZCB6Per.zz0ELYPPlVbzUMPZFROqlf6vXIjw.', 'testadmin', '', '', '', 'admin', '');
+VALUES ('testadmin', '$2a$10$KSF/H6rovbz1YuzaZCB6Per.zz0ELYPPlVbzUMPZFROqlf6vXIjw.', 'testadmin', '21 Lower Kent Ridge Rd', '119077', '65166666', 'admin', '');
 
+-- Username: admin1, Password: admin12
+INSERT INTO Users (Username, Password, Name, Address, Postal, Telephone, Role, LastLogin)
+VALUES ('admin1', '$2a$10$apqTPb8PUa6n916GBvE3YOAr4/An.TXFXcwBuH0DvzKf2nDfLN2eG', 'admin1', '535 Clementi Rd', '599489', '64666555', 'admin', '');
