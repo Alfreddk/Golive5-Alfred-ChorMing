@@ -9,9 +9,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-//var errEmptyRow = errors.New("sql: Empty Row")
-
-//
+// sqlGetAllItems execute a query to database to retrieve all items.
+// It returns all items as []Item data type.
 func sqlGetAllItems(db *sql.DB) []Item {
 
 	rows, err := db.Query("Select * FROM Items")
@@ -39,7 +38,7 @@ func sqlGetAllItems(db *sql.DB) []Item {
 	return items
 }
 
-//
+// sqlAddNewItem execute a query to database to add a new item.
 func sqlAddNewItem(db *sql.DB, item Item) {
 
 	row, err := db.Query("INSERT INTO Items (Name, Description, HideGiven, HideGotten, HideWithdrawn, GiverUsername, GetterUsername, State, Date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",

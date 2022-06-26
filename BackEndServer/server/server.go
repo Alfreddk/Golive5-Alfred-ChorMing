@@ -29,7 +29,6 @@ var cfg mysql.Config // configuration for DSN
 func init() {
 
 	// set path for the env file
-	//envFile := path.Join("..", "config", ".env")
 	envFile := path.Join("config", ".env")
 
 	err := godotenv.Load(envFile)
@@ -47,7 +46,6 @@ func init() {
 	hostPort = fmt.Sprintf("%s:%s", serverHost, serverPort)
 
 	fmt.Printf("Server Name: %s\n", serverName)
-	//fmt.Printf("User http://%s\n", hostPort)
 
 	// SQL DB Data Source Name config
 	cfg = mysql.Config{
@@ -59,7 +57,7 @@ func init() {
 	}
 }
 
-// validate key from the query key-value pair
+// validKey validate key from the query key-value pair
 func validKey(r *http.Request) bool {
 	// query() get the key-value pair after URL
 	v := r.URL.Query()
@@ -75,6 +73,7 @@ func validKey(r *http.Request) bool {
 	}
 }
 
+// allItems
 func allItems(w http.ResponseWriter, r *http.Request) {
 
 	db, err := sql.Open("mysql", cfg.FormatDSN())
