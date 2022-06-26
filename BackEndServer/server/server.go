@@ -145,8 +145,10 @@ func editItem(w http.ResponseWriter, r *http.Request) {
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
+			// fmt.Println(item)
+			// fmt.Printf("item.ID :%v, type:%T\n", item.ID, item.ID)
 			if item.ID == "" { // To check if item sent by frontend server is empty.
-				logger.Trace.Fatalln("Error: Item is empty.")
+				logger.Trace.Fatalln("Error: Item ID is empty.")
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
