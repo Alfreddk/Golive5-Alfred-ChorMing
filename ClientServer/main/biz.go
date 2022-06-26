@@ -61,12 +61,13 @@ func bizListSearchItems(name string, description string, searchLogic string) ([]
 
 	// list 20 items if search entry is empty
 	if len(name)+len(description) == 0 {
-		for i, v := range Items {
+		for _, v := range Items {
 			if v.State == stateToGive {
 				foundList = append(foundList, v)
-			}
-			if i == 20 {
-				break
+
+				// you can set limit
+				// if i >= 20 { break }
+				// remove the limit since display can handle it
 			}
 		}
 	}
