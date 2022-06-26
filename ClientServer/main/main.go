@@ -42,13 +42,19 @@ var mapDeletedSession = map[string]string{}
 
 var userLastVisit = map[string]string{}
 
+/* // alfred 25.06.2022: not used.
 // create an empty linked list for booking
 var myList = &linkedList{nil, 0}
+*/
 
-// init is the system initialisation
 var vrsHost, vrsPort string
-var adminSubName string
+
+// var adminSubName string // alfred 25.06.2022: not used anymore.
 var errLogDir string
+
+var backendHost string
+var backendPort string
+var urlKey string
 
 // init() initialises the system
 // Set up the environment
@@ -66,14 +72,20 @@ func init() {
 		log.Fatalln("Error loading .env file: ", err)
 	}
 
-	// getting env variables SITE_TITLE and DB_HOST
+	// getting env variables SITE_TITLE , VRS_HOST and VRS_PORT
 	siteTitle := os.Getenv("SITE_TITLE")
 	vrsHost = os.Getenv("VRS_HOST")
 	vrsPort = os.Getenv("VRS_PORT")
+
+	// getting env variables BACKEND_HOST, BACKEND_PORT and CLIENT_URLKEY
+	backendHost = os.Getenv("BACKEND_HOST")
+	backendPort = os.Getenv("BACKEND_PORT")
+	urlKey = os.Getenv("CLIENT_URLKEY")
+
 	// Error log relative dir
 	errLogDir = os.Getenv("VRS_ERR_LOG_DIR")
-	//fmt.Println("Error Dir", errLogDir)
 
+	/* // alfred 25.06.2022: not used anymore.
 	// system allow for 3 admin users
 	adminSubName = os.Getenv("VRS_ADMIN_SUBNAME")
 	adminName1 := os.Getenv("VRS_USERNAME1")
@@ -82,9 +94,10 @@ func init() {
 	password2 := os.Getenv("VRS_PASSWORD2")
 	adminName3 := os.Getenv("VRS_USERNAME3")
 	password3 := os.Getenv("VRS_PASSWORD3")
+	*/
 
 	fmt.Printf("%s = %s\n", "Site Title", siteTitle)
-	fmt.Printf("Use https:// %s:%s\n", vrsHost, vrsPort)
+	fmt.Printf("Listening on https://%s:%s\n", vrsHost, vrsPort)
 	// fmt.Printf("godotenv : %s = %s \n", "VRS Host", vrsHost)
 	// fmt.Printf("godotenv : %s = %s \n", "VRS Port", vrsPort)
 	// fmt.Printf("godotenv : %s = %s \n", "VRS Username", username)
@@ -143,12 +156,15 @@ func init() {
 
 	// template initialisation
 	tpl = template.Must(template.ParseGlob("templates/*"))
+
+	/* // alfred 25.06.2022: not used anymore.
 	bPassword1, _ := bcrypt.GenerateFromPassword([]byte(password1), bcrypt.DefaultCost)
 	mapUsers[adminName1] = User{"", adminName1, string(bPassword1), "Staff1", "", "", "", "", ""}
 	bPassword2, _ := bcrypt.GenerateFromPassword([]byte(password2), bcrypt.DefaultCost)
 	mapUsers[adminName2] = User{"", adminName2, string(bPassword2), "Staff2", "", "", "", "", ""}
 	bPassword3, _ := bcrypt.GenerateFromPassword([]byte(password3), bcrypt.DefaultCost)
 	mapUsers[adminName3] = User{"", adminName3, string(bPassword3), "Staff3", "", "", "", "", ""}
+	*/
 
 	// initialise user and business logic for application
 	userInit()

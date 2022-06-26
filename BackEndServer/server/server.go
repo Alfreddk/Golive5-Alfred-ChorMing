@@ -1,5 +1,5 @@
-// Lab 3 This is the server implementation for REST API
-package main
+//
+package server
 
 import (
 	"database/sql"
@@ -11,22 +11,13 @@ import (
 	"os"
 	"path"
 
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
+	"BackEndServer/logger"
 
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
-
-/*
-type courseInfo struct {
-	ID    string `json:"ID"`
-	Title string `json:"Title"`
-}
-*/
-
-// used for storing courses on the REST API
-//var courses map[string]courseInfo
 
 var urlKey string
 var hostPort string
@@ -34,23 +25,20 @@ var hostPort string
 //var sqlDBConnection string
 var cfg mysql.Config // configuration for DSN
 
-// init() initialises the system
-// Set up the environment
-// Note:  For this exercise, both client and server uses the same .env
-// In actual deployment, the .env file will be not be shared
+// init() initialises the server
 func init() {
 
 	// set path for the env file
-	envFile := path.Join("..", "config", ".env")
+	//envFile := path.Join("..", "config", ".env")
+	envFile := path.Join("config", ".env")
 
-	//err := godotenv.Load(".env")
 	err := godotenv.Load(envFile)
 	if err != nil {
 		log.Fatalln("Error loading .env file: ", err)
 	}
 
-	// getting env variables SITE_TITLE and DB_HOST
-	siteTitle := os.Getenv("SERVER_TITLE")
+	// getting env variables SERVER_NAME, SERVER_HOST, SERVER_PORT and SERVER_URLKEY
+	serverName := os.Getenv("SERVER_NAME")
 	serverHost := os.Getenv("SERVER_HOST")
 	serverPort := os.Getenv("SERVER_PORT")
 	urlKey = os.Getenv("SERVER_URLKEY")
@@ -58,8 +46,8 @@ func init() {
 	// Create Host Port from environment variable
 	hostPort = fmt.Sprintf("%s:%s", serverHost, serverPort)
 
-	fmt.Printf("Site Title = %s\n", siteTitle)
-	fmt.Printf("Use http:// %s\n", hostPort)
+	fmt.Printf("Server Name: %s\n", serverName)
+	//fmt.Printf("User http://%s\n", hostPort)
 
 	// SQL DB Data Source Name config
 	cfg = mysql.Config{
@@ -75,7 +63,7 @@ func init() {
 func validKey(r *http.Request) bool {
 	// query() get the key-value pair after URL
 	v := r.URL.Query()
-	//	fmt.Println("v=", v)
+
 	if key, ok := v["key"]; ok {
 		if key[0] == urlKey {
 			return true
@@ -91,15 +79,17 @@ func allItems(w http.ResponseWriter, r *http.Request) {
 
 	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		panic(err.Error())
+		logger.Trace.Fatalln(err)
+		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 	}
 	defer db.Close()
 
-	bufferMap := sqlGetAllItems(db)
+	buffer := sqlGetAllItems(db)
 
-	//fmt.Println(bufferMap)
+	json.NewEncoder(w).Encode(buffer)
 
-	json.NewEncoder(w).Encode(bufferMap)
+	logger.Info.Println("All items successfully transmitted.")
+	logger.LogHashing(logger.InfoLogFile, logger.InfoLogHashFile)
 }
 
 func addNewItem(w http.ResponseWriter, r *http.Request) {
@@ -110,20 +100,29 @@ func addNewItem(w http.ResponseWriter, r *http.Request) {
 
 		reqBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			fmt.Println(err)
-			// log error
+			logger.Trace.Fatalln(err)
+			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		} else {
 			err = json.Unmarshal(reqBody, &item)
 			if err != nil {
-				fmt.Println(err)
-				// log error
+				logger.Trace.Fatalln(err)
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+			}
+
+			if item.ID == "" { // To check if item sent by frontend server is empty.
+				logger.Trace.Fatalln("Error: Item is empty.")
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
 			db, err := sql.Open("mysql", cfg.FormatDSN())
 			if err != nil {
-				panic(err.Error())
+				logger.Trace.Fatalln(err)
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 			defer db.Close()
+
+			logger.Info.Println("Item successfully retrieved.")
+			logger.LogHashing(logger.InfoLogFile, logger.InfoLogHashFile)
 
 			sqlAddNewItem(db, item)
 
@@ -138,20 +137,29 @@ func editItem(w http.ResponseWriter, r *http.Request) {
 
 		reqBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			fmt.Println(err)
-			// log error
+			logger.Trace.Fatalln(err)
+			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		} else {
 			err = json.Unmarshal(reqBody, &item)
 			if err != nil {
-				fmt.Println(err)
-				// log error
+				logger.Trace.Fatalln(err)
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+			}
+
+			if item.ID == "" { // To check if item sent by frontend server is empty.
+				logger.Trace.Fatalln("Error: Item is empty.")
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
 			db, err := sql.Open("mysql", cfg.FormatDSN())
 			if err != nil {
-				panic(err.Error())
+				logger.Trace.Fatalln(err)
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 			defer db.Close()
+
+			logger.Info.Println("Item updates successfully retrieved.")
+			logger.LogHashing(logger.InfoLogFile, logger.InfoLogHashFile)
 
 			sqlEditItem(db, item)
 		}
@@ -161,15 +169,18 @@ func editItem(w http.ResponseWriter, r *http.Request) {
 func allUsers(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		panic(err.Error())
+		logger.Trace.Fatalln(err)
+		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 	}
 	defer db.Close()
 
-	bufferMap := sqlGetAllUsers(db)
+	buffer := sqlGetAllUsers(db)
 
-	//fmt.Println(bufferMap)
+	json.NewEncoder(w).Encode(buffer)
 
-	json.NewEncoder(w).Encode(bufferMap)
+	logger.Info.Println("All items successfully transmitted.")
+	logger.LogHashing(logger.InfoLogFile, logger.InfoLogHashFile)
+
 }
 
 func addNewUser(w http.ResponseWriter, r *http.Request) {
@@ -180,20 +191,29 @@ func addNewUser(w http.ResponseWriter, r *http.Request) {
 
 		reqBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			fmt.Println(err)
-			// log error
+			logger.Trace.Fatalln(err)
+			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		} else {
 			err = json.Unmarshal(reqBody, &user)
 			if err != nil {
-				fmt.Println(err)
-				// log error
+				logger.Trace.Fatalln(err)
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+			}
+
+			if user.ID == "" { // To check if user sent by frontend server is empty.
+				logger.Trace.Fatalln("Error: Item is empty.")
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
 			db, err := sql.Open("mysql", cfg.FormatDSN())
 			if err != nil {
-				panic(err.Error())
+				logger.Trace.Fatalln(err)
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 			defer db.Close()
+
+			logger.Info.Println("User successfully retrieved.")
+			logger.LogHashing(logger.InfoLogFile, logger.InfoLogHashFile)
 
 			sqlAddNewUser(db, user)
 
@@ -208,20 +228,29 @@ func editUser(w http.ResponseWriter, r *http.Request) {
 
 		reqBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			fmt.Println(err)
-			// log error
+			logger.Trace.Fatalln(err)
+			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		} else {
 			err = json.Unmarshal(reqBody, &user)
 			if err != nil {
-				fmt.Println(err)
-				// log error
+				logger.Trace.Fatalln(err)
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+			}
+
+			if user.ID == "" { // To check if user sent by frontend server is empty.
+				logger.Trace.Fatalln("Error: Item is empty.")
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
 			db, err := sql.Open("mysql", cfg.FormatDSN())
 			if err != nil {
-				panic(err.Error())
+				logger.Trace.Fatalln(err)
+				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 			defer db.Close()
+
+			logger.Info.Println("User updates successfully retrieved.")
+			logger.LogHashing(logger.InfoLogFile, logger.InfoLogHashFile)
 
 			sqlEditUser(db, user)
 		}
@@ -234,20 +263,29 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println(err)
-		// log error
+		logger.Trace.Fatalln(err)
+		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 	} else {
 		err = json.Unmarshal(reqBody, &user)
 		if err != nil {
-			fmt.Println(err)
-			// log error
+			logger.Trace.Fatalln(err)
+			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+		}
+
+		if user.ID == "" { // To check if user sent by frontend server is empty.
+			logger.Trace.Fatalln("Error: Item is empty.")
+			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		}
 
 		db, err := sql.Open("mysql", cfg.FormatDSN())
 		if err != nil {
-			panic(err.Error())
+			logger.Trace.Fatalln(err)
+			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		}
 		defer db.Close()
+
+		logger.Info.Println("User to be deleted successfully retrieved.")
+		logger.LogHashing(logger.InfoLogFile, logger.InfoLogHashFile)
 
 		sqlDeleteUser(db, user)
 	}
@@ -445,9 +483,9 @@ func course(w http.ResponseWriter, r *http.Request) {
 }
 */
 
-// main() main function to start the http multiplexer
-// maps URI resource to the handler
-func main() {
+//
+//
+func ExecuteServer() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/api/v1/allitems/", allItems).Methods("GET")
@@ -458,17 +496,7 @@ func main() {
 	router.HandleFunc("/api/v1/edituser/", editUser).Methods("POST")
 	router.HandleFunc("/api/v1/deleteuser/", deleteUser).Methods("DELETE")
 
-	/*
-		router.HandleFunc("/api/v1/", home)
-		router.HandleFunc("/api/v1/courses", allcourses)
-		// passing a variable into a path as a value to the key in {}, use curly braces {for key}
-		//.Methods limit the allow methods
-		router.HandleFunc("/api/v1/courses/{courseid}", course).Methods("GET", "PUT", "POST", "DELETE")
-		// if .Method is not defined, all methods are allowed
-		// router.HandleFunc("/api/v1/courses/{courseid}", course)
-	*/
+	fmt.Printf("Listening on http://%s\n", hostPort)
 
-	fmt.Printf("Listening at %s", hostPort)
-	// log.Fatal(http.ListenAndServe(":5000", router))
 	log.Fatal(http.ListenAndServe(hostPort, router))
 }
