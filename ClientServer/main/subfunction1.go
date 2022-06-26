@@ -279,8 +279,8 @@ func toGiveItem(res http.ResponseWriter, req *http.Request) {
 	var menu menuNameDescType
 	menu.PageType = 1
 	// use last value as default
-	menu.DefName = mapSessionItemName[myCookie.Value]
-	menu.DefDescription = mapSessionItemDescription[myCookie.Value]
+	menu.DefName = ""        //mapSessionItemName[myCookie.Value]
+	menu.DefDescription = "" // mapSessionItemDescription[myCookie.Value]
 
 	tpl.ExecuteTemplate(res, "getNameDescription.gohtml", menu)
 }
