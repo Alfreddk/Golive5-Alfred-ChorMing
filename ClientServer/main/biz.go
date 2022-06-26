@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -41,8 +42,7 @@ func bizItemListInit() {
 	// This is the place to initialise the package slice of items
 	items, err := getAllItems()
 	if err != nil {
-		fmt.Println(err)
-		// log error
+		log.Fatalln(err)
 	}
 
 	Items = make([]Item, len(items))
@@ -135,7 +135,7 @@ func bizSetItemStateToGiven(userID string, id string) {
 			Items[i].GetterUsername = userID
 			err := editItem(Items[i]) // update remote DB with the change
 			if err != nil {
-				fmt.Println("Error", err)
+				Trace.Println(err)
 			}
 			break // match found, so can break
 		}
@@ -174,8 +174,7 @@ func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 		// err := addNewItem(v) // add item to items table in mysql // alfred 25.06.2022: wrong call to mysql.
 		err := editItem(v)
 		if err != nil {
-			fmt.Println(err)
-			// log error
+			Trace.Println(err)
 		}
 	}
 
@@ -205,14 +204,12 @@ func bizGiveItem(name string, description string, username string) ([]string, er
 
 	err := addNewItem(item) // add item to items table in mysql
 	if err != nil {
-		fmt.Println(err)
-		// log error
+		Trace.Println(err)
 	}
 
 	Items, err = getAllItems() // in order to get item ID. pull out all items from items table in mysql again to update/overwrite items (all items slice).
 	if err != nil {
-		fmt.Println(err)
-		// log error
+		Trace.Println(err)
 	}
 
 	var msg []string
@@ -257,7 +254,7 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 			// update SQL DB
 			err := editItem(v)
 			if err != nil {
-				fmt.Println("Error :", err)
+				Trace.Println(err)
 			}
 		}
 		num = fmt.Sprintf("Number of items removed from Tray = %d", len(selectedList))

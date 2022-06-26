@@ -1,6 +1,6 @@
 package server
 
-// alfred 23.06.2022: Item struct needs to be the same struct that the backend server uses.
+// Item defines the details of items.
 type Item struct {
 	ID             string `json:"ID"`
 	Name           string `json:"Name"`
@@ -14,7 +14,7 @@ type Item struct {
 	Date           string `json:"Date"`
 }
 
-// alfred 23.06.2022: User struct needs to be the same struct that the backend server uses.
+// User defines the details of users.
 type User struct {
 	ID        string `json:"ID"`
 	Username  string `json:"Username"`

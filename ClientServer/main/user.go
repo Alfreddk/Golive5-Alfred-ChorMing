@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 )
 
 var mapUsers = map[string]User{}
@@ -10,8 +10,7 @@ var mapUsers = map[string]User{}
 func userInit() {
 	users, err := getAllUsers()
 	if err != nil {
-		fmt.Println(err)
-		// log error
+		log.Fatalln(err)
 	}
 
 	for _, v := range users {
