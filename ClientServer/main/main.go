@@ -1,8 +1,7 @@
-// Package main is the code for Venue Booking Management System
-// Created for Go in Action 2
-// By Tan Chor Ming
-// 18 May 2022
-// Development Time : 170 hours (Go in Action 1 and 2)
+// Package main is the code for GiveNGet System
+// Created for Project Go Live
+// By Tan Chor Ming & Alfred Wung
+// 26 June 2022
 package main
 
 import (
@@ -142,9 +141,6 @@ func init() {
 	// Error.Println("Test Error")
 	// Info.Println("Venue Booking System Initialisation Completed")
 
-	// application initialisation
-	//propertyInit() // create the property features
-	//bookingsInit() // create some initial bookings
 	// template initialisation
 	tpl = template.Must(template.ParseGlob("templates/*"))
 	bPassword1, _ := bcrypt.GenerateFromPassword([]byte(password1), bcrypt.DefaultCost)
@@ -154,9 +150,8 @@ func init() {
 	bPassword3, _ := bcrypt.GenerateFromPassword([]byte(password3), bcrypt.DefaultCost)
 	mapUsers[adminName3] = User{"", adminName3, string(bPassword3), "Staff3", "", "", "", "", ""}
 
+	// initialise user and business logic for application
 	userInit()
-
-	// Initialise the business logic
 	bizInit()
 
 }
@@ -182,17 +177,11 @@ func main() {
 	r.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", r)
 
-	// handler for various URL signature with net/http
-	// http.HandleFunc("/listItem", listItem)
-	// http.HandleFunc("/toGiveItem", toGiveItem)
-	// http.HandleFunc("/userTray", userTray)
-
 	// Switch to Gorilla Mux
 	r.HandleFunc("/searchItem", searchItem)
 	r.HandleFunc("/showSearchList", showSearchList)
 	r.HandleFunc("/toGiveItem", toGiveItem)
 	r.HandleFunc("/giveItem", giveItem)
-	//r.HandleFunc("/userTray", userTray)
 	r.HandleFunc("/displaySelect", displaySelect)
 	r.HandleFunc("/displayList", displayList)
 	r.HandleFunc("/getListedItems", getListedItems)
@@ -381,7 +370,7 @@ func signup(res http.ResponseWriter, req *http.Request) {
 	tpl.ExecuteTemplate(res, "signup.gohtml", myUser)
 }
 
-// Login handler
+// login handler
 func login(res http.ResponseWriter, req *http.Request) {
 	// disallow concurrent login
 	Trace.Println("Login")
@@ -671,13 +660,14 @@ func cleanupSession(uuid string) {
 	delete(mapDeletedUser, uuid)
 	delete(mapDeletedSession, uuid)
 
-	// delete(mapSessionSearch, uuid)
-	// delete(mapSessionVenueType, uuid)
-	// delete(mapSessionVenueTypeNum, uuid)
-	// delete(mapSessionDate, uuid)
-	// delete(mapSessionTimeSlot, uuid)
-	// delete(mapSessionSearchFoundBookings, uuid)
-	// delete(mapSessionRecordToEdit, uuid)
-	// delete(mapSessionFoundBookingPtr, uuid)
-	// delete(mapSessionPreviousMenu, uuid)
+	delete(mapSessionName, uuid)
+	delete(mapSessionItemName, uuid)
+	delete(mapSessionItemDescription, uuid)
+	delete(mapSessionSearchLogic, uuid)
+	delete(mapSessionSearch, uuid)
+	delete(mapSessionSelect, uuid)
+	delete(mapSessionSort, uuid)
+	delete(mapSessionSearchedList, uuid)
+	delete(mapSessionMyTrayList, uuid)
+	delete(mapSessionPreviousMenu, uuid)
 }

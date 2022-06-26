@@ -56,6 +56,11 @@ var mapSessionMyTrayList = map[string][]Item{}
 
 var mapSessionPreviousMenu = map[string]string{}
 
+// postRedirectionNameDescription
+// posting redirection from the
+// searchItem()  --> /showSearchList  (after name and description is obtained)
+// toGiveItem()  --> /giveItem (after name and description is obtained)
+// To get the input for name and description
 func postRedirectNameDescription(uuid string, res http.ResponseWriter,
 	req *http.Request) {
 
@@ -85,14 +90,15 @@ func postRedirectNameDescription(uuid string, res http.ResponseWriter,
 			http.Redirect(res, req, "/showSearchList", http.StatusSeeOther)
 			return
 		case "toGiveItem":
-			fmt.Println("searchItem")
+			fmt.Println("toGiveItem")
 			http.Redirect(res, req, "/giveItem", http.StatusSeeOther)
 			return
 		}
 	}
 }
 
-// postRedirectSortSelect post http to get parameter (select option) for
+// postRedirectSortSelect post http to get parameter (select option) for the following
+// displaySelect() --> /displayList to display the list of sorted items (after the picklist is obtained)
 func postRedirectSortSelect(uuid string, res http.ResponseWriter,
 	req *http.Request) {
 	Trace.Println("postRedirectSortSelect")
@@ -101,7 +107,7 @@ func postRedirectSortSelect(uuid string, res http.ResponseWriter,
 		// get form values from browser
 		sortBy := req.FormValue("select")
 		mapSessionSort[uuid] = sortBy
-		fmt.Printf("Sort by: %v, type: %T\n", sortBy, sortBy)
+		//		fmt.Printf("Sort by: %v, type: %T\n", sortBy, sortBy)
 
 		// selective redirect to based on last menu
 		switch mapSessionPreviousMenu[uuid] {
@@ -114,14 +120,19 @@ func postRedirectSortSelect(uuid string, res http.ResponseWriter,
 	}
 }
 
+// postRedirectPickItems
+// Post redirection after the picklist of obtained based on submit button input actions
+// Withdraw Item --> /withdrawItem
+// View Giver Details  --> /viewGiverDetails
+// View Getter Details --> /viewGetterDetails
+// Remove From Tray --> /removeFromMyTray
+// Get Items --> /getListedItems
 func postRedirectPickItems(uuid string, res http.ResponseWriter,
 	req *http.Request) {
 	Trace.Println("postRedirectPickItems")
 	// Get selection from requester (browser)
 	if req.Method == http.MethodPost {
-		// get form values from browser
-		// selected := req.FormValue("selected")
-		// mapSessionSelect[uuid] = selected
+
 		req.ParseForm()
 		selected := req.Form["selected"]
 		submit := req.Form["submit"] // get the submit button
@@ -160,6 +171,8 @@ func postRedirectPickItems(uuid string, res http.ResponseWriter,
 	}
 }
 
+// seacrhItem
+// called from /searchItem from index to display page for name and description input
 func searchItem(res http.ResponseWriter, req *http.Request) {
 	Trace.Println("SearchItem")
 	// precautionary - to handle direct URL pattern for signup
@@ -187,7 +200,10 @@ func searchItem(res http.ResponseWriter, req *http.Request) {
 	tpl.ExecuteTemplate(res, "getNameDescription.gohtml", menu)
 }
 
-// Shows the list of searched items
+// showSearchList (redirected handler)
+// shows the list of searched items
+// called from /showSearchList after the name and description is submitted
+// and display the list as a picklist (by displaying the picklist)
 func showSearchList(res http.ResponseWriter, req *http.Request) {
 	Trace.Println("showSearchList")
 	// precautionary - to handle direct URL pattern for signup
@@ -229,8 +245,6 @@ func showSearchList(res http.ResponseWriter, req *http.Request) {
 
 	list = showIdNameDescriptionDate2String(mapSessionSearchedList[myCookie.Value])
 
-	//fmt.Println("ItemList : ", list)
-
 	/****************************************/
 
 	var listMenu menuListType
@@ -244,6 +258,8 @@ func showSearchList(res http.ResponseWriter, req *http.Request) {
 	tpl.ExecuteTemplate(res, "showPickList.gohtml", listMenu)
 }
 
+// toGiveItem handler
+// called from index page from /toGiveItem and proceed to get name and description for an item to give away
 func toGiveItem(res http.ResponseWriter, req *http.Request) {
 	Trace.Println("toGiveItem")
 	// precautionary - to handle direct URL pattern for signup
@@ -266,12 +282,11 @@ func toGiveItem(res http.ResponseWriter, req *http.Request) {
 	menu.DefName = mapSessionItemName[myCookie.Value]
 	menu.DefDescription = mapSessionItemDescription[myCookie.Value]
 
-	// fmt.Println("For First Time http Post Request")
-	// This is executed for first entry when http post hasn't happen yet
 	tpl.ExecuteTemplate(res, "getNameDescription.gohtml", menu)
 }
 
 // displaySelect handler
+// called from index page /displaySelect to display the sort options for display
 func displaySelect(res http.ResponseWriter, req *http.Request) {
 	Trace.Println("displaySelect")
 	// precautionary - to handle direct URL pattern for signup
@@ -303,27 +318,36 @@ func displaySelect(res http.ResponseWriter, req *http.Request) {
 	// get last value as default
 	listMenu.DefSelect = sanitizeAtoi(mapSessionSort[myCookie.Value], 0, len(listMenu.List)-1)
 
-	// fmt.Println("For First Time http Post Request")
-	// This is executed for first entry when http post hasn't happen yet
 	tpl.ExecuteTemplate(res, "selectBy.gohtml", listMenu)
 }
 
+// myTrayToGive (redirected handler)
+// called from index to display the myTray list of items for "To Give" items
 func myTrayToGive(res http.ResponseWriter, req *http.Request) {
 	myTray(res, req, "myTrayToGive")
 }
 
+// myTrayGiven (redirected handler)
+// called from index to display the myTray list of items for "Given" items
 func myTrayGiven(res http.ResponseWriter, req *http.Request) {
 	myTray(res, req, "myTrayGiven")
 }
 
+// myTrayGotten (redirected handler)
+// called from to display the myTray list of items for "Gotten" items
 func myTrayGotten(res http.ResponseWriter, req *http.Request) {
 	myTray(res, req, "myTrayGotten")
 }
 
+// myTrayWithdrawn (redirected handler)
+// called from index to display the myTray list of items for "Withdrawn" items
 func myTrayWithdrawn(res http.ResponseWriter, req *http.Request) {
 	myTray(res, req, "myTrayWithdrawn")
 }
 
+// myTray
+// common functions for
+// myTrayToGive, myTrayGiven, myTrayGotten, myTrayWithdrawn
 func myTray(res http.ResponseWriter, req *http.Request, tray string) {
 
 	// precautionary - to handle direct URL pattern for signup
@@ -339,11 +363,8 @@ func myTray(res http.ResponseWriter, req *http.Request, tray string) {
 
 	var listMenu menuListType
 
-	// List Items base on the tray type
-
 	var err error
-	//var items []Item
-	//items, err = bizMyTrayItems(mapSessions[myCookie.Value], tray)
+	// capture my tray list of items
 	mapSessionMyTrayList[myCookie.Value], err = bizMyTrayItems(mapSessions[myCookie.Value], tray)
 	if err != nil {
 		http.Error(res, "Error in bizMyTrayItems ", http.StatusInternalServerError)
@@ -369,11 +390,11 @@ func myTray(res http.ResponseWriter, req *http.Request, tray string) {
 		listMenu.PageType = 4
 	}
 
-	// fmt.Println("For First Time http Post Request")
-	// This is executed for first entry when http post hasn't happen yet
 	tpl.ExecuteTemplate(res, "showPickList.gohtml", listMenu)
 }
 
+// withdrawItem (redirected handler)
+// called from postRedirectPickItems (picked list) to withdrawn the picked items
 func withdrawItem(res http.ResponseWriter, req *http.Request) {
 	// precautionary - to handle direct URL pattern for signup
 	if !alreadyLoggedIn(req) {
@@ -385,7 +406,7 @@ func withdrawItem(res http.ResponseWriter, req *http.Request) {
 	selectedList := mapSessionSelect[myCookie.Value]
 	fmt.Println("selected for withdrawal", selectedList)
 	/******************************/
-	// withdrawal from the displayed
+	// to set selected items (from MyTraylList) to "withdraw" state
 	msg, err := bizWithdrawItems(mapSessionMyTrayList[myCookie.Value], selectedList)
 	if err != nil {
 		http.Error(res, "Error in bizWithdrawItems ", http.StatusInternalServerError)
@@ -394,13 +415,11 @@ func withdrawItem(res http.ResponseWriter, req *http.Request) {
 	}
 	/******************************/
 
-	// var msg []string
-	// msg = append(msg, "Item1 withdrawn")
-	// msg = append(msg, "Item2 withdrawn")
-
 	showMessages(res, req, 2, msg)
 }
 
+// getListedItems (redirected handler)
+// called from postRedirectPickItems (picked list) to get the picked items and put them into "Given" state
 func getListedItems(res http.ResponseWriter, req *http.Request) {
 
 	// precautionary - to handle direct URL pattern for signup
@@ -428,6 +447,8 @@ func getListedItems(res http.ResponseWriter, req *http.Request) {
 	showMessages(res, req, 4, msg)
 }
 
+// giveItem (redirected handler)
+//postRedirectNameDescription after the name and description are entered to put items to "ToGive" state
 func giveItem(res http.ResponseWriter, req *http.Request) {
 
 	// precautionary - to handle direct URL pattern for signup
@@ -442,11 +463,11 @@ func giveItem(res http.ResponseWriter, req *http.Request) {
 	lastmenu := mapSessionPreviousMenu[myCookie.Value]
 
 	fmt.Println("Last Menu :", lastmenu)
-	fmt.Println("Name :", name)
-	fmt.Println("Description :", description)
+	// fmt.Println("Name :", name)
+	// fmt.Println("Description :", description)
+
 	/******************************/
 	// Process the item for listing, change item to "togive" state
-
 	msg, err := bizGiveItem(name, description, username)
 	if err != nil {
 		http.Error(res, "Error in bizGiveItem ", http.StatusInternalServerError)
@@ -458,6 +479,8 @@ func giveItem(res http.ResponseWriter, req *http.Request) {
 	showMessages(res, req, 5, msg)
 }
 
+// removeFromTray (redirected handler)
+// called from postRedirectPickItems to process of pick list items to hide from display from tray
 func removeFromMyTray(res http.ResponseWriter, req *http.Request) {
 
 	// precautionary - to handle direct URL pattern for signup
@@ -475,32 +498,17 @@ func removeFromMyTray(res http.ResponseWriter, req *http.Request) {
 	// Undisplayed the picked list from Tray (Given Items, Gotten Items, Withdrawn Items)
 	// This common for all 3 group, so check the tray to know which group
 
-	/******************************/
 	msg, err := bizRemoveFromTray(mapSessionMyTrayList[myCookie.Value], selectedList, tray)
 	if err != nil {
 		http.Error(res, "Error in bizRemoveFromTray ", http.StatusInternalServerError)
 		fmt.Println("Error :", err)
 		return
 	}
-
+	/******************************/
 	showMessages(res, req, 3, msg)
 }
 
-// Send a fix message
-func showMessage(res http.ResponseWriter, req *http.Request, pageType int, message string) {
-	if !alreadyLoggedIn(req) {
-		http.Redirect(res, req, "/", http.StatusSeeOther)
-		return
-	}
-
-	var msg messageType
-	msg.PageType = pageType
-	msg.Msg = append(msg.Msg, message)
-
-	tpl.ExecuteTemplate(res, "showMessage.gohtml", msg)
-}
-
-// Send a list of messages
+// ShowMeessages send a list of messages to client for display
 func showMessages(res http.ResponseWriter, req *http.Request, pageType int, message []string) {
 	if !alreadyLoggedIn(req) {
 		http.Redirect(res, req, "/", http.StatusSeeOther)
@@ -515,6 +523,9 @@ func showMessages(res http.ResponseWriter, req *http.Request, pageType int, mess
 	tpl.ExecuteTemplate(res, "showMessage.gohtml", msg)
 }
 
+// displayList (redirected hanlder)
+// called from postRedirectSortSelect after sorted key is entered to as to get the sorted list of items
+// to be displayed
 func displayList(res http.ResponseWriter, req *http.Request) {
 
 	if !alreadyLoggedIn(req) {
@@ -538,6 +549,9 @@ func displayList(res http.ResponseWriter, req *http.Request) {
 	showMessages(res, req, 1, msg)
 }
 
+// viewGiverDetails (redirected handler)
+// called from postRedirectPickItems after the picklist to get Giver's contact details for each item
+// and display them
 func viewGiverDetails(res http.ResponseWriter, req *http.Request) {
 
 	if !alreadyLoggedIn(req) {
@@ -548,18 +562,21 @@ func viewGiverDetails(res http.ResponseWriter, req *http.Request) {
 	selectedList := mapSessionSelect[myCookie.Value]
 
 	fmt.Println("Selected :", selectedList)
+	// Get the items picked and Giver's details
 	msg1, err := bizGetItemWithGiverDetails(mapSessionMyTrayList[myCookie.Value], selectedList)
 	if err != nil {
 		http.Error(res, "Server Error", http.StatusInternalServerError)
 		fmt.Println("Error in bizGetItemWithGiverDetails:", err)
 		return
 	}
-	//fmt.Println("msg1 :", msg1)
-
 	fmt.Println("viewGiverDetails")
+
 	showMessages(res, req, 6, msg1)
 }
 
+// viewGetterDetails (redirected handler)
+// called from postRedirectPickItems after the picklist get the Giver's contact details for each item
+// and display them
 func viewGetterDetails(res http.ResponseWriter, req *http.Request) {
 
 	if !alreadyLoggedIn(req) {
@@ -575,8 +592,6 @@ func viewGetterDetails(res http.ResponseWriter, req *http.Request) {
 		fmt.Println("Error in bizGetItemWithGetterDetails :", err)
 		return
 	}
-	//fmt.Println("msg1 :", msg1)
-
 	fmt.Println("viewGetterDetails")
 
 	showMessages(res, req, 7, msg1)
