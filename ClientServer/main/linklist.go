@@ -18,8 +18,8 @@ var (
 
 // node is the struct for the booking
 type node struct {
-	item booking // to store the booking item
-	next *node   // pointer to point to next node
+	item Item  // to store the booking item
+	next *node // pointer to point to next node
 }
 
 // linkedList is the struct for the linked list
@@ -29,7 +29,7 @@ type linkedList struct {
 }
 
 // addNode adds a node into the linked list
-func (p *linkedList) addNode(item booking) error {
+func (p *linkedList) addNode(item Item) error {
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -79,7 +79,7 @@ func (p *linkedList) printAllNodes() error {
 }
 
 // removeNodes removed a node at position pos with the first node as position 1
-func (p *linkedList) removeNode(pos int) (*booking, error) {
+func (p *linkedList) removeNode(pos int) (*Item, error) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -89,7 +89,7 @@ func (p *linkedList) removeNode(pos int) (*booking, error) {
 	}
 
 	// use pos 1 as 1, so if you have n item, there are only n positions
-	var item booking
+	var item Item
 	if pos > 0 && pos <= p.size { // check valid position index
 		if pos == 1 { // special case where pos=1, where item 1 is to be removed
 			item = p.head.item   // copy item before removal
@@ -113,7 +113,7 @@ func (p *linkedList) removeNode(pos int) (*booking, error) {
 }
 
 // addNodeAt addes a node at position pos with the booking item
-func (p *linkedList) addNodeAt(item booking, pos int) error {
+func (p *linkedList) addNodeAt(item Item, pos int) error {
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -158,7 +158,7 @@ func (p *linkedList) addNodeAt(item booking, pos int) error {
 }
 
 // getItem return the booking item at pos int
-func (p *linkedList) getItem(pos int) (*booking, error) {
+func (p *linkedList) getItem(pos int) (*Item, error) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -187,7 +187,7 @@ func (p *linkedList) getItem(pos int) (*booking, error) {
 }
 
 // getAllItems collects all item pointers in a slice
-func (p *linkedList) getAllItems(itemList *[]booking) error {
+func (p *linkedList) getAllItems(itemList *[]Item) error {
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -209,7 +209,7 @@ func (p *linkedList) getAllItems(itemList *[]booking) error {
 }
 
 // getAllItemPtrs2 collects the addresses of item pointers in a slice
-func (p *linkedList) getAllItemPtrs2(itemList *[]*booking) error {
+func (p *linkedList) getAllItemPtrs2(itemList *[]*Item) error {
 	mutex.Lock()
 	defer mutex.Unlock()
 

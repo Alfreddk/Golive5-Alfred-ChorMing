@@ -16,7 +16,7 @@ var Items []Item
 //var sqlDBConnection string
 var cfg mysql.Config // configuration for DSN
 
-// initialisation for business logic
+// bizInit initialisation for business logic
 func bizInit() {
 
 	//	bizSqlInit()  // This is for SQL initialisation if SQL if front/back server is combined
@@ -35,7 +35,7 @@ func bizSqlInit() {
 	}
 }
 
-// Iniitialises item for testing purpose
+// bizItemListInit Iniitialises item for testing purpose
 func bizItemListInit() {
 
 	// This is the place to initialise the package slice of items
@@ -97,7 +97,8 @@ func bizListSearchItems(name string, description string, searchLogic string) ([]
 	return foundList, nil
 }
 
-// Get a list of selected items
+// bizGetListedItems
+// Get a list of selected items (From searchedList)
 // selected item will have item.getter = userID, and state changed to stateGiven
 func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 
@@ -122,6 +123,7 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 	return msg, nil
 }
 
+// bizSetItemStateToGiven
 // Update the state of the item in slice and in SQL DB
 // SQL DB need API, pending implementation
 func bizSetItemStateToGiven(userID string, id string) {
@@ -139,6 +141,7 @@ func bizSetItemStateToGiven(userID string, id string) {
 	}
 }
 
+// bizWithdrawItems
 // withdraw a list of selected items
 // items is not displayed list
 // selected is the selected items
@@ -217,6 +220,7 @@ func bizGiveItem(name string, description string, username string) ([]string, er
 
 }
 
+// bizRemoveFromTray
 // Make these Item from Tray not visible in the Tray
 func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]string, error) {
 	fmt.Println("Tray", tray)
@@ -258,14 +262,15 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 	}
 	msg = append(msg, num)
 
-	fmt.Println("tray Type:", tray)
-	fmt.Println("hide List", hideList)
-
-	fmt.Println("Items ", msg)
+	//	fmt.Println("tray Type:", tray)
+	//	fmt.Println("hide List", hideList)
+	//	fmt.Println("Items ", msg)
 	// var test []string
 	return msg, nil
 }
 
+// bizGetItemWithGiverDetails
+// Get the Giver's contact details for each item in the selected list and form a message slice
 func bizGetItemWithGiverDetails(items []Item, selectedList []string) ([]string, error) {
 	var msg []string
 
@@ -279,36 +284,21 @@ func bizGetItemWithGiverDetails(items []Item, selectedList []string) ([]string, 
 	if len(selectedList) == 0 {
 		msg = append(msg, "Nothing Selected")
 	} else {
-		// // get the items list first
-		// for _, v := range selectedList {
-		// 	intVar, _ := strconv.Atoi(v)
-		// 	filteredList = append(filteredList, items[intVar])
-		// }
-		// Set up hide flag in local db
-		//var str1, str2, str3, str4 string
+
 		for _, v := range selectedList {
 			intVar, _ := strconv.Atoi(v)
 			item := items[intVar]
 
 			formGiverGetterDetails(&msg, "Giver", item.GiverUsername, item)
-			// str1 = "ID: " + item.ID + ",  Name: " + item.Name + ",  Summary: " + item.Description
-			// //str = "ID: " + item.ID + ",  Name: " + item.Name + ",  Summary: " + item.Description +
-			// str2 = "Getter Contact:"
-			// str3 = "Name: " + mapUsers[item.GetterUsername].Name + "  Phone:  " + mapUsers[item.GetterUsername].Telephone
-			// str4 = "Address:  " + mapUsers[item.GetterUsername].Address
-			// fmt.Println("str", str1)
-			// fmt.Println("str2 =", str2)
-			// fmt.Println("str2 =", str3)
-			// msg = append(msg, str1)
-			// msg = append(msg, str2)
-			// msg = append(msg, str3)
-			// msg = append(msg, str4)
+
 			msg = append(msg, "\n")
 		}
 	}
 	return msg, nil
 }
 
+// bizGetItemWithGetterDetails
+// Get the Getter's contact details for each item in the selected list and form a message slice
 func bizGetItemWithGetterDetails(items []Item, selectedList []string) ([]string, error) {
 	var msg []string
 
@@ -319,46 +309,28 @@ func bizGetItemWithGetterDetails(items []Item, selectedList []string) ([]string,
 	if len(selectedList) == 0 {
 		msg = append(msg, "Nothing Selected")
 	} else {
-		// // get the items list first
-		// for _, v := range selectedList {
-		// 	intVar, _ := strconv.Atoi(v)
-		// 	filteredList = append(filteredList, items[intVar])
-		// }
-		// Set up hide flag in local db
-		//var str1, str2, str3, str4 string
+
 		for _, v := range selectedList {
 			intVar, _ := strconv.Atoi(v)
 			item := items[intVar]
 			formGiverGetterDetails(&msg, "Getter", item.GetterUsername, item)
 
-			// str1 = "ID: " + item.ID + ",  Name: " + item.Name + ",  Summary: " + item.Description
-			// //str = "ID: " + item.ID + ",  Name: " + item.Name + ",  Summary: " + item.Description +
-			// str2 = "Getter Contact:"
-			// str3 = "Name: " + mapUsers[item.GetterUsername].Name + "  Phone:  " + mapUsers[item.GetterUsername].Telephone
-			// str4 = "Address:  " + mapUsers[item.GetterUsername].Address
-			// fmt.Println("str", str1)
-			// fmt.Println("str2 =", str2)
-			// fmt.Println("str2 =", str3)
-			// msg = append(msg, str1)
-			// msg = append(msg, str2)
-			// msg = append(msg, str3)
-			// msg = append(msg, str4)
 			msg = append(msg, "\n")
 		}
 	}
 
-	fmt.Println("msg", msg)
-	// pause
-	//fmt.Scanln()
+	//	fmt.Println("msg", msg)
 
 	return msg, nil
 }
 
-// Get a list of sorted data based on the sorted key
+// bizGetSortedList
+// Sorted data in slice of global item based on the sorted key and result in a slice of string
+// The slice message is formed based on the sort choice
 func bizGetSortedList(sortBy string) ([]string, error) {
 	fmt.Println("Sort By:", sortBy)
 
-	// make a copy of the list before sort
+	// make a copy of the items list before sort
 	items := make([]Item, len(Items))
 	copy(items, Items) // deep copy
 
@@ -393,11 +365,10 @@ func bizGetSortedList(sortBy string) ([]string, error) {
 		msg = convertGetterIDFirst2String(items)
 	}
 
-	//	var test []string
 	return msg, nil
 }
 
-// collect a list of items for myTray
+// bizMyTrayItems collects the list of items pertaining to the user's MyTray based on subtray (tray)
 // myTrayToGive - Item given but not received
 // myTrayGiven - Item Received by Given
 // myTrayGotten - Not used
@@ -444,7 +415,7 @@ func bizMyTrayItems(userID string, tray string) ([]Item, error) {
 	return trayList, nil
 }
 
-// hide the item for the local db that match the id
+// HiteItem hides the item for the local db that match the id
 func hideItem(tray string, id string) {
 
 	switch tray {
@@ -472,6 +443,7 @@ func hideItem(tray string, id string) {
 	}
 }
 
+// setStateWithdraw sets the state of the item that match ID to stateWithdrawn
 func setStateWithdraw(id string) {
 
 	for i, v := range Items {
