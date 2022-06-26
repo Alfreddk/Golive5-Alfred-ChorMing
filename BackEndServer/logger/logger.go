@@ -19,6 +19,7 @@ var (
 
 // Logs and Log Hashes files.
 var (
+	logDir           string
 	InfoLogFile      string
 	InfoLogHashFile  string
 	TraceLogFile     string
@@ -36,11 +37,12 @@ func init() {
 		log.Fatalln("Error loading .env file: ", err)
 	}
 
-	// Retrieving env variables INFO_LOG, INFO_LOG_HASH, TRACE_LOG and TRACE_LOG_HASH.
-	InfoLogFile = os.Getenv("INFO_LOG")
-	InfoLogHashFile = os.Getenv("INFO_LOG_HASH")
-	TraceLogFile = os.Getenv("TRACE_LOG")
-	TraceLogHashFile = os.Getenv("TRACE_LOG_HASH")
+	// Retrieving env variables LOG_DIR, INFO_LOG, INFO_LOG_HASH, TRACE_LOG and TRACE_LOG_HASH.
+	logDir = os.Getenv("LOG_DIR")
+	InfoLogFile = path.Join(logDir, os.Getenv("INFO_LOG"))
+	InfoLogHashFile = path.Join(logDir, os.Getenv("INFO_LOG_HASH"))
+	TraceLogFile = path.Join(logDir, os.Getenv("TRACE_LOG"))
+	TraceLogHashFile = path.Join(logDir, os.Getenv("TRACE_LOG_HASH"))
 
 	VerifyLogHash(TraceLogFile, TraceLogHashFile)
 	traceLog, err := os.OpenFile(TraceLogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0700)

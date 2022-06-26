@@ -44,3 +44,7 @@ INFO: 2022/06/26 16:29:07 server.go:252: User updates successfully retrieved.
 INFO: 2022/06/26 16:29:07 sql.go:120: User successfully updated in Database.
 INFO: 2022/06/26 16:29:46 server.go:252: User updates successfully retrieved.
 INFO: 2022/06/26 16:29:46 sql.go:120: User successfully updated in Database.
+INFO: 2022/06/26 17:37:01 sql.go:91: All users successfully retreived from Database.
+INFO: 2022/06/26 17:37:01 server.go:181: All items successfully transmitted.
+INFO: 2022/06/26 17:37:01 sql.go:36: All items successfully retreived from Database.
+INFO: 2022/06/26 17:37:01 server.go:91: All items successfully transmitted.
