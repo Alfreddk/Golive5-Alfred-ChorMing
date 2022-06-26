@@ -111,12 +111,16 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 	// pick up the selected items, only display ID and name
 	// Need also to set the flag for the database
 	userID := mapSessions[uuid]
+	var err error
 	for _, v := range selectedItem {
 		intVar, _ := strconv.Atoi(v) // use this to get the integer value of the index
 		item := fmt.Sprintf("Item:%d, ID: %s, Name: %s, Description: %s", intVar+1, mapSessionSearchedList[uuid][intVar].ID,
 			mapSessionSearchedList[uuid][intVar].Name, mapSessionSearchedList[uuid][intVar].Description)
 
-		bizSetItemStateToGiven(userID, mapSessionSearchedList[uuid][intVar].ID)
+		err = bizSetItemStateToGiven(userID, mapSessionSearchedList[uuid][intVar].ID)
+		if err != nil {
+			return msg, err
+		}
 		msg = append(msg, item)
 	}
 
@@ -127,7 +131,7 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 // bizSetItemStateToGiven
 // Update the state of the item in slice and in SQL DB
 // SQL DB need API, pending implementation
-func bizSetItemStateToGiven(userID string, id string) {
+func bizSetItemStateToGiven(userID string, id string) error {
 	//	fmt.Println("ID:", id)
 	for i, v := range Items {
 		if v.ID == id { // search for ID to match item
@@ -135,11 +139,13 @@ func bizSetItemStateToGiven(userID string, id string) {
 			Items[i].GetterUsername = userID
 			err := editItem(Items[i]) // update remote DB with the change
 			if err != nil {
-				fmt.Println("Error", err)
+				fmt.Println("Error in bizSetItemStateToGiven", err)
+				return err
 			}
 			break // match found, so can break
 		}
 	}
+	return nil
 }
 
 // bizWithdrawItems
@@ -203,10 +209,11 @@ func bizGiveItem(name string, description string, username string) ([]string, er
 
 	item := Item{"", name, description, 0, 0, 0, username, "", 0, date}
 
+	var msg []string
 	err := addNewItem(item) // add item to items table in mysql
 	if err != nil {
 		fmt.Println(err)
-		// log error
+		return msg, err
 	}
 
 	Items, err = getAllItems() // in order to get item ID. pull out all items from items table in mysql again to update/overwrite items (all items slice).
@@ -215,7 +222,6 @@ func bizGiveItem(name string, description string, username string) ([]string, er
 		// log error
 	}
 
-	var msg []string
 	msg = append(msg, "Item : "+name+", "+description+"  ===> To-Give Tray")
 
 	return msg, nil
@@ -258,6 +264,7 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 			err := editItem(v)
 			if err != nil {
 				fmt.Println("Error :", err)
+				return msg, err
 			}
 		}
 		num = fmt.Sprintf("Number of items removed from Tray = %d", len(selectedList))
