@@ -342,14 +342,12 @@ func signup(res http.ResponseWriter, req *http.Request) {
 
 			err = addNewUser(myUser)
 			if err != nil {
-				fmt.Println(err)
-				// log error
+				Trace.Println(err)
 			}
 
 			users, err := getAllUsers()
 			if err != nil {
-				fmt.Println(err)
-				// log error
+				Trace.Println(err)
 			}
 
 			for _, v := range users {
@@ -503,8 +501,7 @@ func deleteUser(res http.ResponseWriter, req *http.Request) {
 				v.State = stateInvalid // change all "togive" state items listed by this user to "invalid" state on runtime memorry Items slice.
 				err := editItem(v)     // change all "togive" state items listed by this user to "invalid" state on backend mysql database.
 				if err != nil {
-					fmt.Println(err)
-					// log error
+					Trace.Println(err)
 				}
 			}
 		}
@@ -514,8 +511,7 @@ func deleteUser(res http.ResponseWriter, req *http.Request) {
 		myUser = mapUsers[userName]
 		err := delUser(myUser)
 		if err != nil {
-			fmt.Println(err)
-			// log error
+			Trace.Println(err)
 		}
 
 		// delete user from runtime mapUsers.
@@ -642,8 +638,7 @@ func updateLastVist(uuid string, status string) {
 
 		err := editUser(myUser) // alfred 24.06.2022: update user's lastlogin record to backend server.
 		if err != nil {
-			fmt.Println(err)
-			// log error
+			Trace.Println(err)
 		}
 
 	}

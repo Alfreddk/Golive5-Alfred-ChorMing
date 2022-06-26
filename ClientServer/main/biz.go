@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -41,8 +42,7 @@ func bizItemListInit() {
 	// This is the place to initialise the package slice of items
 	items, err := getAllItems()
 	if err != nil {
-		fmt.Println(err)
-		// log error
+		log.Fatalln(err)
 	}
 
 	Items = make([]Item, len(items))
@@ -180,8 +180,7 @@ func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 		// err := addNewItem(v) // add item to items table in mysql // alfred 25.06.2022: wrong call to mysql.
 		err := editItem(v)
 		if err != nil {
-			fmt.Println(err)
-			// log error
+			Trace.Println(err)
 		}
 	}
 
@@ -218,8 +217,7 @@ func bizGiveItem(name string, description string, username string) ([]string, er
 
 	Items, err = getAllItems() // in order to get item ID. pull out all items from items table in mysql again to update/overwrite items (all items slice).
 	if err != nil {
-		fmt.Println(err)
-		// log error
+		Trace.Println(err)
 	}
 
 	msg = append(msg, "Item : "+name+", "+description+"  ===> To-Give Tray")

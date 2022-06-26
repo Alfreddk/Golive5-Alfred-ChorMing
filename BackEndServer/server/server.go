@@ -73,12 +73,21 @@ func validKey(r *http.Request) bool {
 	}
 }
 
-// allItems
+// allItems executes HTTP GET request, function calls sqlGetAllItems to retrieve all items from database and returns all items via HTTP response in JSON format.
+// It also checks if a valid key has been provided.
 func allItems(w http.ResponseWriter, r *http.Request) {
+	if !validKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		msg := "Status 404 - Invalid key."
+		w.Write([]byte(msg))
+		logger.Trace.Println(msg)
+		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+		return
+	}
 
 	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		logger.Trace.Fatalln(err)
+		logger.Trace.Panicln(err)
 		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 	}
 	defer db.Close()
@@ -91,7 +100,17 @@ func allItems(w http.ResponseWriter, r *http.Request) {
 	logger.LogHashing(logger.InfoLogFile, logger.InfoLogHashFile)
 }
 
+// addNewItem executes HTTP POST request, retrieve request body in JSON format, function calls sqlAddNewItem to add an item to database.
+// It also checks if a valid key has been provided.
 func addNewItem(w http.ResponseWriter, r *http.Request) {
+	if !validKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		msg := "Status 404 - Invalid key."
+		w.Write([]byte(msg))
+		logger.Trace.Println(msg)
+		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+		return
+	}
 
 	if r.Header.Get("Content-type") == "application/json" {
 
@@ -99,23 +118,28 @@ func addNewItem(w http.ResponseWriter, r *http.Request) {
 
 		reqBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			logger.Trace.Fatalln(err)
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			w.Write([]byte("Status 422 - Invalid JSON format"))
+			logger.Trace.Println(err)
 			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		} else {
 			err = json.Unmarshal(reqBody, &item)
 			if err != nil {
-				logger.Trace.Fatalln(err)
+				logger.Trace.Println(err)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
 			if item.Name == "" { // To check if item sent by frontend server is empty.
-				logger.Trace.Fatalln("Error: Item is empty.")
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				msg := "Error: Item is empty."
+				w.Write([]byte(msg))
+				logger.Trace.Println(msg)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
 			db, err := sql.Open("mysql", cfg.FormatDSN())
 			if err != nil {
-				logger.Trace.Fatalln(err)
+				logger.Trace.Panicln(err)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 			defer db.Close()
@@ -129,32 +153,46 @@ func addNewItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// editItem executes HTTP POST request, retrieve request body in JSON format, function calls sqlEditItem to update an item in database.
+// It also checks if a valid key has been provided.
 func editItem(w http.ResponseWriter, r *http.Request) {
+	if !validKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		msg := "Status 404 - Invalid key."
+		w.Write([]byte(msg))
+		logger.Trace.Println(msg)
+		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+		return
+	}
+
 	if r.Header.Get("Content-type") == "application/json" {
 
 		var item Item
 
 		reqBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			logger.Trace.Fatalln(err)
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			w.Write([]byte("Status 422 - Invalid JSON format"))
+			logger.Trace.Println(err)
 			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		} else {
 			err = json.Unmarshal(reqBody, &item)
 			if err != nil {
-				logger.Trace.Fatalln(err)
+				logger.Trace.Println(err)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
-			// fmt.Println(item)
-			// fmt.Printf("item.ID :%v, type:%T\n", item.ID, item.ID)
 			if item.ID == "" { // To check if item sent by frontend server is empty.
-				logger.Trace.Fatalln("Error: Item ID is empty.")
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				msg := "Error: Item is empty."
+				w.Write([]byte(msg))
+				logger.Trace.Println(msg)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
 			db, err := sql.Open("mysql", cfg.FormatDSN())
 			if err != nil {
-				logger.Trace.Fatalln(err)
+				logger.Trace.Panicln(err)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 			defer db.Close()
@@ -167,10 +205,21 @@ func editItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// allUsers executes HTTP GET request, function calls sqlGetAllUsers to retrieve all users from database and returns all users via HTTP response in JSON format.
+// It also checks if a valid key has been provided.
 func allUsers(w http.ResponseWriter, r *http.Request) {
+	if !validKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		msg := "Status 404 - Invalid key."
+		w.Write([]byte(msg))
+		logger.Trace.Println(msg)
+		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+		return
+	}
+
 	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		logger.Trace.Fatalln(err)
+		logger.Trace.Panicln(err)
 		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 	}
 	defer db.Close()
@@ -184,7 +233,17 @@ func allUsers(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// addNewUser executes HTTP POST request, retrieve request body in JSON format, function calls sqlAddNewUser to add an user to database.
+// It also checks if a valid key has been provided.
 func addNewUser(w http.ResponseWriter, r *http.Request) {
+	if !validKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		msg := "Status 404 - Invalid key."
+		w.Write([]byte(msg))
+		logger.Trace.Println(msg)
+		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+		return
+	}
 
 	if r.Header.Get("Content-type") == "application/json" {
 
@@ -192,23 +251,28 @@ func addNewUser(w http.ResponseWriter, r *http.Request) {
 
 		reqBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			logger.Trace.Fatalln(err)
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			w.Write([]byte("Status 422 - Invalid JSON format"))
+			logger.Trace.Println(err)
 			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		} else {
 			err = json.Unmarshal(reqBody, &user)
 			if err != nil {
-				logger.Trace.Fatalln(err)
+				logger.Trace.Println(err)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
 			if user.Name == "" { // To check if user sent by frontend server is empty.
-				logger.Trace.Fatalln("Error: Item is empty.")
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				msg := "Error: User is empty."
+				w.Write([]byte(msg))
+				logger.Trace.Println(msg)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
 			db, err := sql.Open("mysql", cfg.FormatDSN())
 			if err != nil {
-				logger.Trace.Fatalln(err)
+				logger.Trace.Panicln(err)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 			defer db.Close()
@@ -222,30 +286,46 @@ func addNewUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// editUser executes HTTP POST request, retrieve request body in JSON format, function calls sqlEditUser to update an user in database.
+// It also checks if a valid key has been provided.
 func editUser(w http.ResponseWriter, r *http.Request) {
+	if !validKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		msg := "Status 404 - Invalid key."
+		w.Write([]byte(msg))
+		logger.Trace.Println(msg)
+		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+		return
+	}
+
 	if r.Header.Get("Content-type") == "application/json" {
 
 		var user User
 
 		reqBody, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			logger.Trace.Fatalln(err)
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			w.Write([]byte("Status 422 - Invalid JSON format"))
+			logger.Trace.Println(err)
 			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		} else {
 			err = json.Unmarshal(reqBody, &user)
 			if err != nil {
-				logger.Trace.Fatalln(err)
+				logger.Trace.Println(err)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
 			if user.ID == "" { // To check if user sent by frontend server is empty.
-				logger.Trace.Fatalln("Error: Item is empty.")
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				msg := "Error: User is empty."
+				w.Write([]byte(msg))
+				logger.Trace.Println(msg)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
 			db, err := sql.Open("mysql", cfg.FormatDSN())
 			if err != nil {
-				logger.Trace.Fatalln(err)
+				logger.Trace.Panicln(err)
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 			defer db.Close()
@@ -258,29 +338,44 @@ func editUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// deleteUser executes HTTP DELETE request, retrieve request body in JSON format, function calls sqlDeleteUser to delete an user from database.
+// It also checks if a valid key has been provided.
 func deleteUser(w http.ResponseWriter, r *http.Request) {
+	if !validKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		msg := "Status 404 - Invalid key."
+		w.Write([]byte(msg))
+		logger.Trace.Println(msg)
+		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
+		return
+	}
 
 	var user User
 
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger.Trace.Fatalln(err)
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		w.Write([]byte("Status 422 - Invalid JSON format"))
+		logger.Trace.Println(err)
 		logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 	} else {
 		err = json.Unmarshal(reqBody, &user)
 		if err != nil {
-			logger.Trace.Fatalln(err)
+			logger.Trace.Println(err)
 			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		}
 
 		if user.ID == "" { // To check if user sent by frontend server is empty.
-			logger.Trace.Fatalln("Error: Item is empty.")
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			msg := "Error: User is empty."
+			w.Write([]byte(msg))
+			logger.Trace.Println(msg)
 			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		}
 
 		db, err := sql.Open("mysql", cfg.FormatDSN())
 		if err != nil {
-			logger.Trace.Fatalln(err)
+			logger.Trace.Panicln(err)
 			logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 		}
 		defer db.Close()
@@ -293,199 +388,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
-/*
-// home is the handler for "/api/v1/" resource
-func home(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the REST API Server!")
-}
-
-// allcourses is the handler for "/api/v1/courses" resource
-func allcourses(w http.ResponseWriter, r *http.Request) {
-
-	// Use mysql as driverName and a valid DSN as dataSourceName:
-	// user set up password that can access this db connection
-	// db, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:58710)/courseDB")
-	// db, err := sql.Open("mysql", "root:password@tcp(127.0.0.1:58710)/courseDB")
-	db, err := sql.Open("mysql", cfg.FormatDSN())
-
-	// handle error
-	if err != nil {
-		panic(err.Error())
-	}
-	// defer the close till after the main function has finished executing
-	defer db.Close()
-	//	fmt.Println("Database opened")
-
-	fmt.Fprintf(w, "List of all courses\n")
-
-	//var bufferMap map[string]interface{}
-	bufferMap := GetRecords(db)
-	//	fmt.Println("BufferMap :", bufferMap)
-
-	// map assertion to interface to string
-	for k, v := range bufferMap {
-		fmt.Fprintln(w, k, v.(string))
-	}
-
-	// returns all the courses in JSON
-	json.NewEncoder(w).Encode(bufferMap)
-}
-
-// course() is the hanlder for "/api/v1/courses/{courseid}" resource
-func course(w http.ResponseWriter, r *http.Request) {
-
-	// vakidate key for parameter key-value
-	if !validKey(r) {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("401 - Invalid key"))
-		return
-	}
-
-	// Use mysql as driverName and a valid DSN as dataSourceName:
-	// user set up password that can access this db connection
-	//db, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:58710)/courseDB")
-	//db, err := sql.Open("mysql", "root:password@tcp(127.0.0.1:58710)/courseDB")
-	db, err := sql.Open("mysql", cfg.FormatDSN())
-
-	// handle error
-	if err != nil {
-		panic(err.Error())
-	}
-	// defer the close till after the main function has finished executing
-	defer db.Close()
-	//	fmt.Println("Database opened")
-
-	// mux.Vars(r) is the variable immediately after the URL
-	params := mux.Vars(r)
-	//fmt.Println("parameter =", params)
-
-	// Get does not have a body so only header
-	if r.Method == "GET" {
-
-		// check if there is a row for this record with the ID
-		bufferMap, err := GetOneRecord(db, params["courseid"])
-
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("404 - No course found"))
-			return
-		}
-
-		//map assertion to interface to map[string]string
-		for k, v := range bufferMap {
-			fmt.Fprintln(w, k, v.(string))
-		}
-
-		// return the specific course in Json
-		json.NewEncoder(w).Encode(bufferMap[params["courseid"]])
-	}
-
-	// Delete may have a body but not encouraged, safest not to use
-	if r.Method == "DELETE" {
-		_, err := GetOneRecord(db, params["courseid"])
-
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("404 - No course found"))
-			return
-		}
-
-		DeleteRecord(db, params["courseid"])
-		// 	delete(courses, params["courseid"])
-		w.WriteHeader(http.StatusAccepted)
-		w.Write([]byte("202 - Course deleted: " + params["courseid"]))
-	}
-
-	// check for json application
-	if r.Header.Get("Content-type") == "application/json" {
-		// POST is for creating new course
-		if r.Method == "POST" { // check request method
-			// read the string sent to the service
-			var newCourse courseInfo
-			reqBody, err := ioutil.ReadAll(r.Body)
-			if err == nil {
-				// parse JSON to object data structure
-				json.Unmarshal(reqBody, &newCourse)
-				if newCourse.Title == "" { // empty title
-					w.WriteHeader(http.StatusUnprocessableEntity)
-					w.Write([]byte("422 - Please supply course " + "information " + "in JSON format"))
-					return
-				} // check if course exists; add only if // course does not exist
-
-				// check if there is a row for this record with the ID
-				_, err := GetOneRecord(db, params["courseid"])
-
-				fmt.Println("Title", newCourse.Title)
-				if err != nil {
-					// Row not found, so add new row (new record)
-					if err == errEmptyRow {
-						InsertRecord(db, params["courseid"], newCourse.Title)
-						w.WriteHeader(http.StatusCreated)
-						w.Write([]byte("201 - Course added: " + params["courseid"] + " Title: " + newCourse.Title))
-					} else {
-						// some sql error if any such error
-						w.WriteHeader(http.StatusInternalServerError)
-						w.Write([]byte("500 - Internal Server Error"))
-					}
-				} else {
-					w.WriteHeader(http.StatusConflict) // course key already exist
-					w.Write([]byte("409 - Duplicate course ID"))
-				}
-			} else {
-				// Problem with the body from response
-				w.WriteHeader(http.StatusUnprocessableEntity) // error
-				w.Write([]byte("422 - Please supply course information " + "in JSON format"))
-			}
-		}
-
-		//---PUT is for creating or updating exiting course---
-		if r.Method == "PUT" {
-			var newCourse courseInfo
-			reqBody, err := ioutil.ReadAll(r.Body)
-			if err == nil {
-				// parse JSON to object data structure
-				json.Unmarshal(reqBody, &newCourse)
-				if newCourse.Title == "" { // empty title in body
-					w.WriteHeader(http.StatusUnprocessableEntity)
-					w.Write([]byte("422 - Please supply course " + " information " + "in JSON format"))
-					return
-				} // check if course exists; add only if // course does not exist
-
-				// check if there is a row for this record with the ID
-				_, err := GetOneRecord(db, params["courseid"])
-
-				fmt.Println("Title", newCourse.Title)
-
-				if err != nil {
-					// Row not found, so creat new row
-					// 	courses[params["courseid"]] = newCourse // create the key-value
-					if err == errEmptyRow {
-						InsertRecord(db, params["courseid"], newCourse.Title)
-						w.WriteHeader(http.StatusCreated)
-						w.Write([]byte("201 - Course added: " + params["courseid"]))
-					} else {
-						// some sql error if any such error
-						w.WriteHeader(http.StatusInternalServerError)
-						w.Write([]byte("500 - Internal Server Error"))
-					}
-				} else {
-					// Edit row if row exist
-					EditRecord(db, params["courseid"], newCourse.Title)
-					w.WriteHeader(http.StatusAccepted)
-					w.Write([]byte("202 - Course updated: " + params["courseid"] + " Title: " + newCourse.Title))
-				}
-
-			} else {
-				w.WriteHeader(http.StatusUnprocessableEntity) // error
-				w.Write([]byte("422 - Please supply " + "course information " + "in JSON format"))
-			}
-		}
-	}
-}
-*/
-
-//
-//
+// ExecuteServer executes the backend server.
 func ExecuteServer() {
 
 	router := mux.NewRouter()
