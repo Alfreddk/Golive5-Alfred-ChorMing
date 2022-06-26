@@ -155,12 +155,13 @@ func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 	// get the selected list to be withdrawn
 	if len(selectedItem) > 0 {
 		fmt.Println("selectedItem", selectedItem)
-		for _, v := range selectedItem {
+		for i, v := range selectedItem {
 			intVar, _ := strconv.Atoi(v)
-			withdrawList = append(withdrawList, items[intVar])
+			withdrawList[i] = items[intVar]
 		}
 	}
 
+	fmt.Println("withdraw List =", withdrawList)
 	// Set the state to withdrawn for the selected items
 	for _, v := range withdrawList {
 
