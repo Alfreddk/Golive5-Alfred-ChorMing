@@ -11,7 +11,7 @@ import (
 
 var mapUsers = map[string]User{}
 
-// Initialise the bussiness logic or any handshake with back end server
+// userInit performs getAllUsers() function call to retreive all users records and maps these records to mapUsers on runtime memory.
 func userInit() {
 	users, err := getAllUsers()
 	if err != nil {
@@ -24,14 +24,13 @@ func userInit() {
 		userLastVisit[v.Username] = v.LastLogin
 	}
 
-	fmt.Println(mapUsers)
-
 }
 
 func getAllUsers() (users []User, err error) {
 	users = []User{}
 
-	backendURL := "http://127.0.0.1:5000/api/v1/allusers/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+	//backendURL := "http://127.0.0.1:5000/api/v1/allusers/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+	backendURL := "http://" + backendHost + ":" + backendPort + "/api/v1/allusers/?key=" + urlKey
 
 	resp, err := http.Get(backendURL)
 	if err != nil {
@@ -55,7 +54,8 @@ func getAllUsers() (users []User, err error) {
 
 func addNewUser(user User) error {
 
-	backendURL := "http://127.0.0.1:5000/api/v1/addnewuser/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+	//backendURL := "http://127.0.0.1:5000/api/v1/addnewuser/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+	backendURL := "http://" + backendHost + ":" + backendPort + "/api/v1/addnewuser/?key=" + urlKey
 
 	jsonData, err := json.Marshal(user)
 	if err != nil {
@@ -76,7 +76,8 @@ func addNewUser(user User) error {
 
 func editUser(user User) error {
 
-	backendURL := "http://127.0.0.1:5000/api/v1/edituser/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+	//backendURL := "http://127.0.0.1:5000/api/v1/edituser/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+	backendURL := "http://" + backendHost + ":" + backendPort + "/api/v1/edituser/?key=" + urlKey
 
 	jsonData, err := json.Marshal(user)
 	if err != nil {
@@ -97,7 +98,8 @@ func editUser(user User) error {
 
 func delUser(user User) error {
 
-	backendURL := "http://127.0.0.1:5000/api/v1/deleteuser/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+	//backendURL := "http://127.0.0.1:5000/api/v1/deleteuser/?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+	backendURL := "http://" + backendHost + ":" + backendPort + "/api/v1/deleteuser/?key=" + urlKey
 
 	jsonData, err := json.Marshal(user)
 	if err != nil {
@@ -122,17 +124,3 @@ func delUser(user User) error {
 	return errors.New("Error: resp.StatusCode is not 200")
 
 }
-
-/*
-// Request for new session ID for new session
-func userRequestSessionID() {
-
-}
-
-// get the user username, password and user type
-func userGetUser() {
-
-}
-
-// returns boolean true of false if the user is a valid
-*/

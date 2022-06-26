@@ -1,4 +1,4 @@
-package main
+package server
 
 // alfred 23.06.2022: Item struct needs to be the same struct that the backend server uses.
 type Item struct {
