@@ -1,0 +1,78 @@
+INFO: 2022/06/26 18:28:05 sql.go:90: All users successfully retreived from Database.
+INFO: 2022/06/26 18:28:05 server.go:180: All items successfully transmitted.
+INFO: 2022/06/26 18:28:05 sql.go:35: All items successfully retreived from Database.
+INFO: 2022/06/26 18:28:05 server.go:90: All items successfully transmitted.
+INFO: 2022/06/26 18:28:28 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:28:28 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:28:31 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:28:31 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:28:55 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:28:55 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:28:56 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:28:56 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:29:02 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:29:02 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:29:04 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:29:04 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:29:07 server.go:160: Item updates successfully retrieved.
+INFO: 2022/06/26 18:29:07 sql.go:66: Item successfully updated in Database.
+INFO: 2022/06/26 18:29:19 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:29:20 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:29:21 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:29:21 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:29:32 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:29:32 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:29:34 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:29:34 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:29:44 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:29:44 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:29:46 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:29:46 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:30:09 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:30:09 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:30:11 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:30:11 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:30:15 server.go:160: Item updates successfully retrieved.
+INFO: 2022/06/26 18:30:15 sql.go:66: Item successfully updated in Database.
+INFO: 2022/06/26 18:30:31 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:30:31 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:30:55 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:30:55 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:34:26 sql.go:90: All users successfully retreived from Database.
+INFO: 2022/06/26 18:34:26 server.go:180: All items successfully transmitted.
+INFO: 2022/06/26 18:34:26 sql.go:35: All items successfully retreived from Database.
+INFO: 2022/06/26 18:34:26 server.go:90: All items successfully transmitted.
+INFO: 2022/06/26 18:34:51 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:34:51 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:35:21 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:35:21 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:35:32 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:35:32 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:36:49 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:36:49 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:36:54 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:36:54 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:51:45 sql.go:90: All users successfully retreived from Database.
+INFO: 2022/06/26 18:51:45 server.go:180: All items successfully transmitted.
+INFO: 2022/06/26 18:51:45 sql.go:35: All items successfully retreived from Database.
+INFO: 2022/06/26 18:51:45 server.go:90: All items successfully transmitted.
+INFO: 2022/06/26 18:57:34 sql.go:90: All users successfully retreived from Database.
+INFO: 2022/06/26 18:57:34 server.go:180: All items successfully transmitted.
+INFO: 2022/06/26 18:57:34 sql.go:35: All items successfully retreived from Database.
+INFO: 2022/06/26 18:57:34 server.go:90: All items successfully transmitted.
+INFO: 2022/06/26 18:57:47 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:57:47 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:58:00 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:58:00 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:58:00 server.go:123: Item successfully retrieved.
+INFO: 2022/06/26 18:58:00 sql.go:52: Item successfully inserted into Database.
+INFO: 2022/06/26 18:58:00 sql.go:35: All items successfully retreived from Database.
+INFO: 2022/06/26 18:58:00 server.go:90: All items successfully transmitted.
+INFO: 2022/06/26 18:58:13 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:58:13 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 18:58:28 server.go:251: User updates successfully retrieved.
+INFO: 2022/06/26 18:58:28 sql.go:119: User successfully updated in Database.
+INFO: 2022/06/26 19:05:16 sql.go:90: All users successfully retreived from Database.
+INFO: 2022/06/26 19:05:16 server.go:180: All items successfully transmitted.
+INFO: 2022/06/26 19:05:16 sql.go:35: All items successfully retreived from Database.
+INFO: 2022/06/26 19:05:16 server.go:90: All items successfully transmitted.

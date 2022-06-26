@@ -108,7 +108,7 @@ func addNewItem(w http.ResponseWriter, r *http.Request) {
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
-			if item.ID == "" { // To check if item sent by frontend server is empty.
+			if item.Name == "" { // To check if item sent by frontend server is empty.
 				logger.Trace.Fatalln("Error: Item is empty.")
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
@@ -199,7 +199,7 @@ func addNewUser(w http.ResponseWriter, r *http.Request) {
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}
 
-			if user.ID == "" { // To check if user sent by frontend server is empty.
+			if user.Name == "" { // To check if user sent by frontend server is empty.
 				logger.Trace.Fatalln("Error: Item is empty.")
 				logger.LogHashing(logger.TraceLogFile, logger.TraceLogHashFile)
 			}

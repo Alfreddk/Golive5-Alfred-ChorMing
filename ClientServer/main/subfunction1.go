@@ -192,8 +192,8 @@ func searchItem(res http.ResponseWriter, req *http.Request) {
 	var menu menuNameDescType
 	menu.PageType = 2
 	// use last value as default
-	menu.DefName = mapSessionItemName[myCookie.Value]
-	menu.DefDescription = mapSessionItemDescription[myCookie.Value]
+	menu.DefName = ""        //mapSessionItemName[myCookie.Value]
+	menu.DefDescription = "" //mapSessionItemDescription[myCookie.Value]
 
 	// fmt.Println("For First Time http Post Request")
 	// This is executed for first entry when http post hasn't happen yet
