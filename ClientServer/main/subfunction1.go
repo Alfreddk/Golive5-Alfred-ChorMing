@@ -236,8 +236,8 @@ func showSearchList(res http.ResponseWriter, req *http.Request) {
 	mapSessionSearchedList[myCookie.Value] = searchedItems
 
 	if err != nil {
-		http.Error(res, "Error in ShowSearchList ", http.StatusInternalServerError)
-		fmt.Println("Error :", err)
+		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
+		fmt.Println("Error in bizListSearchItems:", err)
 		return
 	}
 
@@ -367,8 +367,8 @@ func myTray(res http.ResponseWriter, req *http.Request, tray string) {
 	// capture my tray list of items
 	mapSessionMyTrayList[myCookie.Value], err = bizMyTrayItems(mapSessions[myCookie.Value], tray)
 	if err != nil {
-		http.Error(res, "Error in bizMyTrayItems ", http.StatusInternalServerError)
-		fmt.Println("Error :", err)
+		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
+		fmt.Println("Error in bizMyTrayItems :", err)
 		return
 	}
 
@@ -409,8 +409,8 @@ func withdrawItem(res http.ResponseWriter, req *http.Request) {
 	// to set selected items (from MyTraylList) to "withdraw" state
 	msg, err := bizWithdrawItems(mapSessionMyTrayList[myCookie.Value], selectedList)
 	if err != nil {
-		http.Error(res, "Error in bizWithdrawItems ", http.StatusInternalServerError)
-		fmt.Println("Error :", err)
+		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
+		fmt.Println("Error in bizWithdrawItems :", err)
 		return
 	}
 	/******************************/
@@ -438,8 +438,8 @@ func getListedItems(res http.ResponseWriter, req *http.Request) {
 
 	msg, err := bizGetListedItems(myCookie.Value, selectedList)
 	if err != nil {
-		http.Error(res, "Error in bizGetListedItems ", http.StatusInternalServerError)
-		fmt.Println("Error :", err)
+		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
+		fmt.Println("Error in bizGetListedItems :", err)
 		return
 	}
 	/******************************/
@@ -470,8 +470,8 @@ func giveItem(res http.ResponseWriter, req *http.Request) {
 	// Process the item for listing, change item to "togive" state
 	msg, err := bizGiveItem(name, description, username)
 	if err != nil {
-		http.Error(res, "Error in bizGiveItem ", http.StatusInternalServerError)
-		fmt.Println("Error :", err)
+		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
+		fmt.Println("Error in bizGiveItem :", err)
 		return
 	}
 	/******************************/
@@ -500,8 +500,8 @@ func removeFromMyTray(res http.ResponseWriter, req *http.Request) {
 
 	msg, err := bizRemoveFromTray(mapSessionMyTrayList[myCookie.Value], selectedList, tray)
 	if err != nil {
-		http.Error(res, "Error in bizRemoveFromTray ", http.StatusInternalServerError)
-		fmt.Println("Error :", err)
+		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
+		fmt.Println("Error in bizRemoveFromTray:", err)
 		return
 	}
 	/******************************/
@@ -541,7 +541,7 @@ func displayList(res http.ResponseWriter, req *http.Request) {
 	// // Get the sorted list here !!
 	msg, err := bizGetSortedList(sortBy)
 	if err != nil {
-		http.Error(res, "Server Error", http.StatusInternalServerError)
+		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error in bizGetSortedList :", err)
 		return
 	}
@@ -565,7 +565,7 @@ func viewGiverDetails(res http.ResponseWriter, req *http.Request) {
 	// Get the items picked and Giver's details
 	msg1, err := bizGetItemWithGiverDetails(mapSessionMyTrayList[myCookie.Value], selectedList)
 	if err != nil {
-		http.Error(res, "Server Error", http.StatusInternalServerError)
+		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error in bizGetItemWithGiverDetails:", err)
 		return
 	}
@@ -588,7 +588,7 @@ func viewGetterDetails(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("Selected :", selectedList)
 	msg1, err := bizGetItemWithGetterDetails(mapSessionMyTrayList[myCookie.Value], selectedList)
 	if err != nil {
-		http.Error(res, "Server Error", http.StatusInternalServerError)
+		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error in bizGetItemWithGetterDetails :", err)
 		return
 	}
