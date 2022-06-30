@@ -23,17 +23,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-/*
-type user struct {
-	Username  string //username
-	Password  []byte //password hash
-	Name      string
-	Address   string
-	Postal    string
-	Telephone string
-	LastLogin string
-}*/
-
 var tpl *template.Template
 
 var mapSessions = map[string]string{}
@@ -42,14 +31,8 @@ var mapDeletedSession = map[string]string{}
 
 var userLastVisit = map[string]string{}
 
-/* // alfred 25.06.2022: not used.
-// create an empty linked list for booking
-var myList = &linkedList{nil, 0}
-*/
-
 var vrsHost, vrsPort string
 
-// var adminSubName string // alfred 25.06.2022: not used anymore.
 var errLogDir string
 
 var backendHost string
@@ -59,8 +42,7 @@ var urlKey string
 // init() initialises the system
 // Set up the environment
 // Set up the logger
-// Set up database for booking and Properties
-// Initialises admin password
+// Set up local database on runtime memory
 func init() {
 
 	// set path for the env file
@@ -85,23 +67,8 @@ func init() {
 	// Error log relative dir
 	errLogDir = os.Getenv("VRS_ERR_LOG_DIR")
 
-	/* // alfred 25.06.2022: not used anymore.
-	// system allow for 3 admin users
-	adminSubName = os.Getenv("VRS_ADMIN_SUBNAME")
-	adminName1 := os.Getenv("VRS_USERNAME1")
-	password1 := os.Getenv("VRS_PASSWORD1")
-	adminName2 := os.Getenv("VRS_USERNAME2")
-	password2 := os.Getenv("VRS_PASSWORD2")
-	adminName3 := os.Getenv("VRS_USERNAME3")
-	password3 := os.Getenv("VRS_PASSWORD3")
-	*/
-
 	fmt.Printf("%s = %s\n", "Site Title", siteTitle)
 	fmt.Printf("Listening on https://%s:%s\n", vrsHost, vrsPort)
-	// fmt.Printf("godotenv : %s = %s \n", "VRS Host", vrsHost)
-	// fmt.Printf("godotenv : %s = %s \n", "VRS Port", vrsPort)
-	// fmt.Printf("godotenv : %s = %s \n", "VRS Username", username)
-	// fmt.Printf("godotenv : %s = %s \n", "VRS Password", password)
 
 	// Set up Logging
 	warningsFile := path.Join("..", errLogDir, "warnings.log")
@@ -157,18 +124,9 @@ func init() {
 	// template initialisation
 	tpl = template.Must(template.ParseGlob("templates/*"))
 
-	/* // alfred 25.06.2022: not used anymore.
-	bPassword1, _ := bcrypt.GenerateFromPassword([]byte(password1), bcrypt.DefaultCost)
-	mapUsers[adminName1] = User{"", adminName1, string(bPassword1), "Staff1", "", "", "", "", ""}
-	bPassword2, _ := bcrypt.GenerateFromPassword([]byte(password2), bcrypt.DefaultCost)
-	mapUsers[adminName2] = User{"", adminName2, string(bPassword2), "Staff2", "", "", "", "", ""}
-	bPassword3, _ := bcrypt.GenerateFromPassword([]byte(password3), bcrypt.DefaultCost)
-	mapUsers[adminName3] = User{"", adminName3, string(bPassword3), "Staff3", "", "", "", "", ""}
-	*/
-
 	// initialise user and business logic for application
-	userInit()
-	bizInit()
+	go userInit()
+	go bizInit()
 
 }
 
@@ -180,7 +138,6 @@ func main() {
 	// Error.Println("Test Error")
 	// Info.Println("Venue Booking System Initialisation Completed")
 
-	// Experiment with gorilla/mux
 	r := mux.NewRouter()
 	r.HandleFunc("/", index)
 	r.HandleFunc("/deleteSession", deleteSession)
@@ -193,7 +150,6 @@ func main() {
 	r.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/", r)
 
-	// Switch to Gorilla Mux
 	r.HandleFunc("/searchItem", searchItem)
 	r.HandleFunc("/showSearchList", showSearchList)
 	r.HandleFunc("/toGiveItem", toGiveItem)
@@ -210,36 +166,19 @@ func main() {
 	r.HandleFunc("/viewGiverDetails", viewGiverDetails)
 	r.HandleFunc("/viewGetterDetails", viewGetterDetails)
 
-	http.ListenAndServe(vrsHost+":"+vrsPort, nil)
+	//http.ListenAndServe(vrsHost+":"+vrsPort, nil)
 	// Using Open SSL certification and key for development and testing only
-	//http.ListenAndServeTLS(vrsHost+":"+vrsPort, "../OpenSSL/cert.pem", "../OpenSSL/key.pem", nil)
+	http.ListenAndServeTLS(vrsHost+":"+vrsPort, "../OpenSSL/cert.pem", "../OpenSSL/key.pem", nil)
 }
 
 // index is the Index handler
 func index(res http.ResponseWriter, req *http.Request) {
-	myUser := getUser(res, req) // alfred 24.06.2022: need to look into this. does this pulls the latest LastLogin?
+	myUser := getUser(res, req)
 
 	// update last visit status to client
-	myUser.LastLogin = userLastVisit[myUser.Username] // alfred 24.06.2022: need to look into this. do we need this or is it already updated?
+	myUser.LastLogin = userLastVisit[myUser.Username]
 
 	Trace.Println("Index")
-
-	/*
-		regexStr := "^" + adminSubName + "$"
-		//regex := regexp.MustCompile(`(^admin\d$)`)
-		regex := regexp.MustCompile(regexStr)
-
-
-			if regex.MatchString(myUser.Username) {
-				//admin page
-				Trace.Println("Index Admin Page")
-				tpl.ExecuteTemplate(res, "index_admin.gohtml", myUser)
-			} else {
-				// non admin page
-				Trace.Println("Index Non Admin Page")
-				tpl.ExecuteTemplate(res, "index.gohtml", myUser)
-			}
-	*/
 
 	if myUser.Role == "admin" {
 		//admin page
@@ -266,8 +205,10 @@ func signup(res http.ResponseWriter, req *http.Request) {
 	regex1 := regexp.MustCompile(`(^[A-Za-z])+([A-Za-z0-9]){4,}`)
 	// regex to enforce 1 Alpha + 4 AlphaNumeric char min for password
 	regex2 := regexp.MustCompile(`([A-Za-z0-9]){6,}`)
+
 	// for future use
 	//regex2 := regexp.MustCompile('^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+,.\\\/;':"-]).{6,}$')
+
 	// First name enforce 2 alpha characters
 	regex3 := regexp.MustCompile(`([a-zA-Z]){2,}(\x20)*([a-zA-Z])*`)
 
@@ -290,18 +231,7 @@ func signup(res http.ResponseWriter, req *http.Request) {
 		postalcode = strings.TrimSpace(postalcode)
 		telnumber = strings.TrimSpace(telnumber)
 
-		/*
-			// Use this to send to backend server
-			fmt.Println("UserName :", username)
-			fmt.Println("Password :", password)
-			fmt.Println("Name :", name)
-			fmt.Println("Address :", address)
-			fmt.Println("Postal Code :", postalcode)
-			fmt.Println("Phone Number :", telnumber)
-		*/
-
 		// User name , password or firstname does not meet policy
-
 		if !regex1.MatchString(username) {
 			Trace.Println("Signup failed username")
 			http.Error(res, "Username (Please begin with Alphabet and be at least 5 characters)", http.StatusForbidden)
@@ -356,7 +286,6 @@ func signup(res http.ResponseWriter, req *http.Request) {
 
 			fmt.Println(mapUsers)
 
-			//mapUsers[username] = myUser
 			userLastVisit[username] = "None"
 
 			// create session ID using cookie
@@ -379,7 +308,7 @@ func signup(res http.ResponseWriter, req *http.Request) {
 		return
 
 	}
-	//	fmt.Println("For First Time http Post Request")
+
 	// This is executed for first entry when http post hasn't happen yet
 	tpl.ExecuteTemplate(res, "signup.gohtml", myUser)
 }
@@ -468,7 +397,6 @@ func logout(res http.ResponseWriter, req *http.Request) {
 	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm")))
 
 	// delete the session
-	//delete(mapSessions, myCookie.Value)
 	cleanupSession(myCookie.Value)
 	// remove the cookie
 	myCookie = &http.Cookie{
@@ -490,7 +418,7 @@ func deleteUser(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	myCookie, _ := req.Cookie("myCookie")
-	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm"))) // alfred 24.06.2022: question to CM, why is this here?
+	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm")))
 	if req.Method == http.MethodPost {
 		// get form values from browser
 		userName := req.FormValue("userName")
@@ -498,7 +426,7 @@ func deleteUser(res http.ResponseWriter, req *http.Request) {
 
 		for _, v := range Items {
 			if v.GiverUsername == userName && v.State == stateToGive {
-				v.State = stateInvalid // change all "togive" state items listed by this user to "invalid" state on runtime memorry Items slice.
+				v.State = stateInvalid // change all "togive" state items listed by this user to "invalid" state on runtime memory Items slice.
 				err := editItem(v)     // change all "togive" state items listed by this user to "invalid" state on backend mysql database.
 				if err != nil {
 					Trace.Println(err)
@@ -516,14 +444,6 @@ func deleteUser(res http.ResponseWriter, req *http.Request) {
 
 		// delete user from runtime mapUsers.
 		delete(mapUsers, userName)
-
-		/*
-			// to delete the user in next state
-			mapDeletedUser[myCookie.Value] = userName
-			//delete(mapUsers, userName)
-			// test this concept
-			//		tpl.ExecuteTemplate(res, "showUser.gohtml", userName)
-		*/
 
 		// redirect to browse Venue List
 		http.Redirect(res, req, "/showDeletedUser", http.StatusSeeOther) // alfred 24.06.2022: No longer tracking deleted users. this page is no longer relevant. CM to advise.
@@ -560,7 +480,7 @@ func deleteSession(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	myCookie, _ := req.Cookie("myCookie")
-	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm"))) // alfred 24.06.2022: question to CM, why is this here?
+	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm")))
 
 	if req.Method == http.MethodPost {
 		// get form values from browser
@@ -634,18 +554,14 @@ func updateLastVist(uuid string, status string) {
 
 		myUser = mapUsers[username]
 		myUser.LastLogin = status
-		mapUsers[username] = myUser // alfred 24.06.2022: update user's lastlogin record on runtime memory.
+		mapUsers[username] = myUser // Update user's lastlogin record on runtime memory.
 
-		err := editUser(myUser) // alfred 24.06.2022: update user's lastlogin record to backend server.
+		err := editUser(myUser) // Update user's lastlogin record to backend server.
 		if err != nil {
 			Trace.Println(err)
 		}
 
 	}
-
-	// else {
-	// 	userLastVisit[username] = "None"
-	// }
 
 }
 

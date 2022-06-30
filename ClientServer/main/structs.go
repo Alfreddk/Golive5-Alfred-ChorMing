@@ -1,6 +1,7 @@
 package main
 
-// alfred 23.06.2022: Item struct needs to be the same struct that the backend server uses.
+// Item defines the details of items.
+// It also serves for JSON marshalling and unmarshalling.
 type Item struct {
 	ID             string `json:"ID"`
 	Name           string `json:"Name"`
@@ -14,7 +15,8 @@ type Item struct {
 	Date           string `json:"Date"`
 }
 
-// alfred 23.06.2022: User struct needs to be the same struct that the backend server uses.
+// Item defines the details of items.
+// It also serves for JSON marshalling and unmarshalling.
 type User struct {
 	ID        string `json:"ID"`
 	Username  string `json:"Username"`
