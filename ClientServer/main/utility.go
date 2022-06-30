@@ -19,19 +19,6 @@ func sanitizeAtoi(input string, first int, last int) int {
 	}
 }
 
-/* // alfred 24.06.2022: not used.
-// Convert items data to string slices
-func convertToString(data []itemType) []string {
-	listdata := []string{}
-
-	for _, v := range data {
-		listdata = append(listdata, v.Id+" "+v.Name+" "+v.Description)
-	}
-
-	return listdata
-}
-*/
-
 // ConvertItems2String converts items data to string slices.
 func convertItems2String(data []Item) []string {
 
@@ -39,7 +26,6 @@ func convertItems2String(data []Item) []string {
 	listdata := []string{}
 	for _, v := range data {
 		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
-		//state := fmt.Sprintf("%d", v.State)
 		listdata = append(listdata, "ID: "+v.ID+",  Name: "+v.Name+",  Summary: "+v.Description+
 			",  State: "+itemState[v.State]+",  Hide: "+hideStatus+",  GiverID: "+v.GiverUsername+
 			",  GetterID: "+v.GetterUsername+",  Date: "+v.Date)
@@ -53,7 +39,6 @@ func convertNameFirst2String(data []Item) []string {
 	listdata := []string{}
 	for _, v := range data {
 		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
-		//state := fmt.Sprintf("%d", v.State)
 		listdata = append(listdata, "Name: "+v.Name+",  ID: "+v.ID+",  Summary: "+v.Description+
 			",  State: "+itemState[v.State]+",  Hide: "+hideStatus+",  GiverID: "+v.GiverUsername+
 			",  GetterID: "+v.GetterUsername+",  Date: "+v.Date)
@@ -68,7 +53,6 @@ func convertStateFirst2String(data []Item) []string {
 	listdata := []string{}
 	for _, v := range data {
 		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
-		//state := fmt.Sprintf("%d", v.State)
 		listdata = append(listdata, "State: "+itemState[v.State]+",  ID: "+v.ID+",  Name: "+v.Name+
 			",  Summary: "+v.Description+",  Hide: "+hideStatus+",  GiverID: "+v.GiverUsername+
 			",  GetterID: "+v.GetterUsername+",  Date: "+v.Date)
@@ -83,7 +67,6 @@ func convertDateFirst2String(data []Item) []string {
 	listdata := []string{}
 	for _, v := range data {
 		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
-		//state := fmt.Sprintf("%d", v.State)
 		listdata = append(listdata, "Date: "+v.Date+",  ID: "+v.ID+",  Name: "+v.Name+",  Summary: "+v.Description+
 			",  State: "+itemState[v.State]+",  Hide: "+hideStatus+",  GiverID: "+v.GiverUsername+
 			",  GetterID: "+v.GetterUsername)
@@ -98,7 +81,6 @@ func convertGiverIDFirst2String(data []Item) []string {
 	listdata := []string{}
 	for _, v := range data {
 		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
-		//state := fmt.Sprintf("%d", v.State)
 		listdata = append(listdata, "GiverID: "+v.GiverUsername+",  ID: "+v.ID+",  Name: "+v.Name+",  Summary: "+v.Description+
 			",  State: "+itemState[v.State]+", Hide: "+hideStatus+
 			",  GetterID: "+v.GetterUsername+",  Date: "+v.Date)
@@ -113,7 +95,6 @@ func convertGetterIDFirst2String(data []Item) []string {
 	listdata := []string{}
 	for _, v := range data {
 		hideStatus := fmt.Sprintf("%v:%v:%v", v.HideGiven, v.HideGotten, v.HideWithdrawn)
-		//state := fmt.Sprintf("%d", v.State)
 		listdata = append(listdata, "GetterID: "+v.GetterUsername+",  ID: "+v.ID+",  Name: "+v.Name+",  Summary: "+v.Description+
 			",  State: "+itemState[v.State]+",  Hide: "+hideStatus+",  GiverID: "+v.GiverUsername+
 			",  Date: "+v.Date)
@@ -132,10 +113,10 @@ func showIdNameDescriptionDate2String(data []Item) []string {
 	return listdata
 }
 
+// formGiverGetterDetails forms and add Giver or Getter details and appends onto var msg.
 func formGiverGetterDetails(msg *[]string, role string, userID string, item Item) {
 
 	s := *msg
-	//var msg []string
 	var str1, str2, str3, str4 string
 	str1 = "ID: " + item.ID + ",  Name: " + item.Name + ",  Summary: " + item.Description
 	str2 = role + " Contact:"

@@ -185,7 +185,6 @@ func searchItem(res http.ResponseWriter, req *http.Request) {
 	// update last visit
 	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm")))
 	mapSessionPreviousMenu[myCookie.Value] = "searchItem"
-	// fmt.Println(myCookie.Value)
 
 	postRedirectNameDescription(myCookie.Value, res, req)
 
@@ -195,7 +194,6 @@ func searchItem(res http.ResponseWriter, req *http.Request) {
 	menu.DefName = ""        //mapSessionItemName[myCookie.Value]
 	menu.DefDescription = "" //mapSessionItemDescription[myCookie.Value]
 
-	// fmt.Println("For First Time http Post Request")
 	// This is executed for first entry when http post hasn't happen yet
 	tpl.ExecuteTemplate(res, "getNameDescription.gohtml", menu)
 }
@@ -214,7 +212,6 @@ func showSearchList(res http.ResponseWriter, req *http.Request) {
 	myCookie, _ := req.Cookie("myCookie")
 
 	mapSessionPreviousMenu[myCookie.Value] = "showSearchList"
-	// fmt.Println(myCookie.Value)
 	postRedirectPickItems(myCookie.Value, res, req)
 
 	// Information to be used for search of DB
@@ -229,7 +226,6 @@ func showSearchList(res http.ResponseWriter, req *http.Request) {
 	if len(name)+len(itemDescription) == 0 {
 		fmt.Println("There is no info on search criteria - use a default listing or no listing?")
 	}
-	/****************************************/
 
 	searchedItems, err := bizListSearchItems(name, itemDescription, searchLogic)
 	mapSessionSearchedList[myCookie.Value] = make([]Item, len(searchedItems))
@@ -245,15 +241,12 @@ func showSearchList(res http.ResponseWriter, req *http.Request) {
 
 	list = showIdNameDescriptionDate2String(mapSessionSearchedList[myCookie.Value])
 
-	/****************************************/
-
 	var listMenu menuListType
 	// menu for search for browser to select search option before editing
 	// listMenu.List = convertToString(list)
 	listMenu.List = list
 	listMenu.PageType = 5
 
-	// fmt.Println("For First Time http Post Request")
 	// This is executed for first entry when http post hasn't happen yet
 	tpl.ExecuteTemplate(res, "showPickList.gohtml", listMenu)
 }
@@ -272,7 +265,6 @@ func toGiveItem(res http.ResponseWriter, req *http.Request) {
 	// update last visit
 	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm")))
 	mapSessionPreviousMenu[myCookie.Value] = "toGiveItem"
-	// fmt.Println(myCookie.Value)
 
 	postRedirectNameDescription(myCookie.Value, res, req)
 
@@ -299,7 +291,6 @@ func displaySelect(res http.ResponseWriter, req *http.Request) {
 	// update last visit
 	updateLastVist(myCookie.Value, fmt.Sprintf("Passed : %s", time.Now().Format("Jan-02-2006, 3:04:05 pm")))
 	mapSessionPreviousMenu[myCookie.Value] = "displaySelect"
-	// fmt.Println(myCookie.Value)
 
 	postRedirectSortSelect(myCookie.Value, res, req) // go next to searchparameter
 
@@ -377,7 +368,6 @@ func myTray(res http.ResponseWriter, req *http.Request, tray string) {
 
 	// listMenu.List = convertToString(list)
 	fmt.Println("Tray Selected Items:", tray)
-	// **********************
 
 	switch tray {
 	case "myTrayToGive":
@@ -405,7 +395,7 @@ func withdrawItem(res http.ResponseWriter, req *http.Request) {
 
 	selectedList := mapSessionSelect[myCookie.Value]
 	fmt.Println("selected for withdrawal", selectedList)
-	/******************************/
+
 	// to set selected items (from MyTraylList) to "withdraw" state
 	msg, err := bizWithdrawItems(mapSessionMyTrayList[myCookie.Value], selectedList)
 	if err != nil {
@@ -413,7 +403,6 @@ func withdrawItem(res http.ResponseWriter, req *http.Request) {
 		fmt.Println("Error in bizWithdrawItems :", err)
 		return
 	}
-	/******************************/
 
 	showMessages(res, req, 2, msg)
 }
@@ -433,16 +422,14 @@ func getListedItems(res http.ResponseWriter, req *http.Request) {
 	selectedList := mapSessionSelect[myCookie.Value]
 	fmt.Println("Last Menu :", lastmenu)
 	fmt.Println("selected to get :", selectedList)
-	/******************************/
-	// Process the list of items picked by getter
 
+	// Process the list of items picked by getter
 	msg, err := bizGetListedItems(myCookie.Value, selectedList)
 	if err != nil {
 		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error in bizGetListedItems :", err)
 		return
 	}
-	/******************************/
 
 	showMessages(res, req, 4, msg)
 }
@@ -463,10 +450,7 @@ func giveItem(res http.ResponseWriter, req *http.Request) {
 	lastmenu := mapSessionPreviousMenu[myCookie.Value]
 
 	fmt.Println("Last Menu :", lastmenu)
-	// fmt.Println("Name :", name)
-	// fmt.Println("Description :", description)
 
-	/******************************/
 	// Process the item for listing, change item to "togive" state
 	msg, err := bizGiveItem(name, description, username)
 	if err != nil {
@@ -474,7 +458,6 @@ func giveItem(res http.ResponseWriter, req *http.Request) {
 		fmt.Println("Error in bizGiveItem :", err)
 		return
 	}
-	/******************************/
 
 	showMessages(res, req, 5, msg)
 }
@@ -494,7 +477,7 @@ func removeFromMyTray(res http.ResponseWriter, req *http.Request) {
 	selectedList := mapSessionSelect[myCookie.Value]
 	fmt.Println("Tray to Remove from View", tray)
 	fmt.Println("selected for withdrawal", selectedList)
-	/******************************/
+
 	// Undisplayed the picked list from Tray (Given Items, Gotten Items, Withdrawn Items)
 	// This common for all 3 group, so check the tray to know which group
 
@@ -504,7 +487,7 @@ func removeFromMyTray(res http.ResponseWriter, req *http.Request) {
 		fmt.Println("Error in bizRemoveFromTray:", err)
 		return
 	}
-	/******************************/
+
 	showMessages(res, req, 3, msg)
 }
 
@@ -537,8 +520,7 @@ func displayList(res http.ResponseWriter, req *http.Request) {
 	sortBy := mapSessionSort[myCookie.Value]
 	fmt.Println("Sort Selected", sortBy)
 
-	// ***********************
-	// // Get the sorted list here !!
+	// Get the sorted list here
 	msg, err := bizGetSortedList(sortBy)
 	if err != nil {
 		http.Error(res, "Internal Server Error", http.StatusInternalServerError)

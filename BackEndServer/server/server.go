@@ -22,7 +22,6 @@ import (
 var urlKey string
 var hostPort string
 
-//var sqlDBConnection string
 var cfg mysql.Config // configuration for DSN
 
 // init() initialises the server

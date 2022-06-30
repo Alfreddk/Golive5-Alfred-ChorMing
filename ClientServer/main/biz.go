@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -12,39 +11,27 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
+// Items stores the items record at package level on local database on runtime memory.
 var Items []Item
 
-//var sqlDBConnection string
-var cfg mysql.Config // configuration for DSN
+var cfg mysql.Config // configuration for DSN.
 
-// bizInit initialisation for business logic
+// bizInit initialisation for business logic.
 func bizInit() {
 
-	//	bizSqlInit()  // This is for SQL initialisation if SQL if front/back server is combined
 	bizItemListInit()
 }
 
-// Initialise the SQL server connection from main init
-func bizSqlInit() {
-	// SQL DB Data Source Name config
-	cfg = mysql.Config{
-		User:   os.Getenv("SQL_USER"),
-		Passwd: os.Getenv("SQL_PASSWORD"),
-		Net:    "tcp",
-		Addr:   os.Getenv("SQL_ADDR"),
-		DBName: os.Getenv("SQL_DB"),
-	}
-}
-
-// bizItemListInit Iniitialises item for testing purpose
+// bizItemListInit Iniitialises items record on local database on runtime memory.
 func bizItemListInit() {
 
-	// This is the place to initialise the package slice of items
+	// Initialise items record onto a slice.
 	items, err := getAllItems()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	// Deep copy item slice onto var Item.
 	Items = make([]Item, len(items))
 	copy(Items, items)
 
@@ -55,19 +42,15 @@ func bizListSearchItems(name string, description string, searchLogic string) ([]
 
 	var foundList []Item
 
-	// convert to lower case for search
+	// Convert to lower case for search.
 	name = strings.ToLower(name)
 	description = strings.ToLower(description)
 
-	// list 20 items if search entry is empty
+	// list all available items if search entry is empty.
 	if len(name)+len(description) == 0 {
 		for _, v := range Items {
 			if v.State == stateToGive {
 				foundList = append(foundList, v)
-
-				// you can set limit
-				// if i >= 20 { break }
-				// remove the limit since display can handle it
 			}
 		}
 	}
@@ -92,8 +75,6 @@ func bizListSearchItems(name string, description string, searchLogic string) ([]
 			}
 		}
 	}
-	//strList := convertItems2String(foundList)
-	//fmt.Println("String List", strList)
 
 	return foundList, nil
 }
@@ -107,9 +88,8 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 	var msg []string
 	num := fmt.Sprintf("Number of items Gotten = %d", len(selectedItem))
 	msg = append(msg, num)
-	// test data
-	// pick up the selected items, only display ID and name
-	// Need also to set the flag for the database
+
+	// pick up the selected items, only display item ID, name and description
 	userID := mapSessions[uuid]
 	var err error
 	for _, v := range selectedItem {
@@ -124,13 +104,11 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 		msg = append(msg, item)
 	}
 
-	//var test []string
 	return msg, nil
 }
 
 // bizSetItemStateToGiven
-// Update the state of the item in slice and in SQL DB
-// SQL DB need API, pending implementation
+// Update the state of the item in slice and in SQL DB.
 func bizSetItemStateToGiven(userID string, id string) error {
 	//	fmt.Println("ID:", id)
 	for i, v := range Items {
@@ -177,10 +155,10 @@ func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 		// state change to SQL DB to stateWithdrawn
 		v.State = stateWithdrawn
 
-		// err := addNewItem(v) // add item to items table in mysql // alfred 25.06.2022: wrong call to mysql.
 		err := editItem(v)
 		if err != nil {
 			Trace.Println(err)
+			return msg, err
 		}
 	}
 
@@ -188,13 +166,12 @@ func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 
 	num := fmt.Sprintf("Number of items Withdrawn = %d", len(selectedItem))
 	msg = append(msg, num)
-	// test data
+
 	for _, v := range selectedItem {
 		item := fmt.Sprintf("item %v, is withdrawn", v)
 		msg = append(msg, item)
 	}
 
-	//var test []string
 	return msg, nil
 
 }
@@ -246,6 +223,7 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 			intVar, _ := strconv.Atoi(v)
 			hideList = append(hideList, items[intVar])
 		}
+
 		// Set up hide flag in local db
 		for _, v := range hideList {
 			hideItem(tray, v.ID)
@@ -253,11 +231,11 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 			case "myTrayGiven":
 				v.HideGiven = 1
 			case "myTrayGotten":
-				//v.HideGottem = 1 // alfred 25.06.2022: typo and commented out.
 				v.HideGotten = 1
 			case "myTrayWithdrawn":
 				v.HideWithdrawn = 1
 			}
+
 			// update SQL DB
 			err := editItem(v)
 			if err != nil {
@@ -269,10 +247,6 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 	}
 	msg = append(msg, num)
 
-	//	fmt.Println("tray Type:", tray)
-	//	fmt.Println("hide List", hideList)
-	//	fmt.Println("Items ", msg)
-	// var test []string
 	return msg, nil
 }
 
@@ -281,12 +255,8 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 func bizGetItemWithGiverDetails(items []Item, selectedList []string) ([]string, error) {
 	var msg []string
 
-	//	var filteredList []Item // final selected list to hide
-
 	fmt.Println("Items", items)
 	fmt.Println("Select", selectedList)
-	// pause
-	//fmt.Scanln()
 
 	if len(selectedList) == 0 {
 		msg = append(msg, "Nothing Selected")
@@ -309,7 +279,6 @@ func bizGetItemWithGiverDetails(items []Item, selectedList []string) ([]string, 
 func bizGetItemWithGetterDetails(items []Item, selectedList []string) ([]string, error) {
 	var msg []string
 
-	//	var filteredList []Item // final selected list to hide
 	fmt.Println("Items", items)
 	fmt.Println("Select", selectedList)
 
@@ -325,8 +294,6 @@ func bizGetItemWithGetterDetails(items []Item, selectedList []string) ([]string,
 			msg = append(msg, "\n")
 		}
 	}
-
-	//	fmt.Println("msg", msg)
 
 	return msg, nil
 }
@@ -363,12 +330,12 @@ func bizGetSortedList(sortBy string) ([]string, error) {
 	case "4":
 		sort.SliceStable(items, func(i, j int) bool {
 			return items[i].GiverUsername < items[j].GiverUsername
-		}) //alfred 23.06.2022: ChorMing you need to relook into this. Changed from ID to username.
+		})
 		msg = convertGiverIDFirst2String(items)
 	case "5":
 		sort.SliceStable(items, func(i, j int) bool {
 			return items[i].GetterUsername < items[j].GetterUsername
-		}) //alfred 23.06.2022: ChorMing you need to relook into this. Changed from ID to username.
+		})
 		msg = convertGetterIDFirst2String(items)
 	}
 

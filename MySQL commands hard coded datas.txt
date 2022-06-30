@@ -1,4 +1,34 @@
+CREATE USER 'user'@'localhost' 	IDENTIFIED BY 'password';
+
+GRANT ALL ON *.* TO 'user'@'localhost';
+
+CREATE database GiveNGetDB;
+
 USE GiveNGetDB;
+
+CREATE TABLE Items (
+ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+Name VARCHAR(100),
+Description VARCHAR(400),
+HideGiven INT,
+HideGotten INT,
+HideWithdrawn INT,
+GiverUsername VARCHAR(50),
+GetterUsername VARCHAR(50),
+State INT,
+Date VARCHAR(15));
+
+CREATE TABLE Users (
+ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+Username VARCHAR(50),
+Password VARCHAR(255),
+Name VARCHAR(50),
+Address VARCHAR(100),
+Postal VARCHAR(10),
+Telephone VARCHAR(10),
+Role VARCHAR(5),
+LastLogin VARCHAR(100));
+
 
 -- create admin and users
 -- ID: 1, Username: admin1, Password: admin123
