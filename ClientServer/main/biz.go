@@ -86,18 +86,19 @@ func bizListSearchItems(name string, description string, searchLogic string) ([]
 func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 
 	// item list is in this map mapSessionSearchedList[uuid]
-	var msg []string
-	num := fmt.Sprintf("Number of items Gotten = %d", len(selectedItem))
-	msg = append(msg, num)
 
 	// pick up the selected items, only display item ID, name and description
 	userID := mapSessions[uuid]
+	fmt.Println("UserID :", userID)
 	var item string
 	var err error
+	fmt.Println("Searched List", mapSessionSearchedList[uuid])
+
+	var count int = 0
+
+	var msg []string
 	for _, v := range selectedItem {
 		intVar, _ := strconv.Atoi(v) // use this to get the integer value of the index
-		item = fmt.Sprintf("Item:%d, ID: %s, Name: %s, Description: %s", intVar+1, mapSessionSearchedList[uuid][intVar].ID,
-			mapSessionSearchedList[uuid][intVar].Name, mapSessionSearchedList[uuid][intVar].Description)
 
 		err = bizSetItemStateToGiven(userID, mapSessionSearchedList[uuid][intVar].ID)
 
@@ -114,14 +115,24 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 			} else {
 				return msg, err
 			}
+		} else {
+			item = fmt.Sprintf("Item:%d, ID: %s, Name: %s, Description: %s", intVar+1, mapSessionSearchedList[uuid][intVar].ID,
+				mapSessionSearchedList[uuid][intVar].Name, mapSessionSearchedList[uuid][intVar].Description)
+			count++
 		}
 		msg = append(msg, item)
 	}
 
+	// move msg to 1 position to the right
+	msg = append(msg[:1], msg[0:]...)
+	//	var msg []string
+	msg[0] = fmt.Sprintf("Number of items Gotten = %d", count)
+	//	msg = append(msg, num)
+
 	return msg, nil
 }
 
-var ErrorItemAlreadyGiven error = errors.New("Item is already Given Away")
+var ErrorItemAlreadyGiven error = errors.New("Item is already Taken")
 var ErrorItemAlreadyWithdrawn error = errors.New("Item is already withdrawn")
 var ErrorItemStateInvalid error = errors.New("Item is in Invalid State")
 
@@ -129,12 +140,14 @@ var ErrorItemStateInvalid error = errors.New("Item is in Invalid State")
 // Update the state of the item in slice and in SQL DB.
 func bizSetItemStateToGiven(userID string, id string) error {
 	//	fmt.Println("ID:", id)
+	var count int = 0
 	for i, v := range Items {
 		if v.ID == id { // search for ID to match item
 			if Items[i].State == stateToGive {
 				Items[i].State = stateGiven // use index to change the state directly local DB
 				Items[i].GetterUsername = userID
 				err := editItem(Items[i]) // update remote DB with the change
+				count++
 				if err != nil {
 					fmt.Println("Error in bizSetItemStateToGiven", err)
 					return err

@@ -169,6 +169,8 @@ func postRedirectPickItems(uuid string, res http.ResponseWriter,
 			return
 		}
 	}
+
+	fmt.Println("Run Redirection code")
 }
 
 // seacrhItem
@@ -227,16 +229,19 @@ func showSearchList(res http.ResponseWriter, req *http.Request) {
 		fmt.Println("There is no info on search criteria - use a default listing or no listing?")
 	}
 
-	searchedItems, err := bizListSearchItems(name, itemDescription, searchLogic)
-	mapSessionSearchedList[myCookie.Value] = make([]Item, len(searchedItems))
-	//mapSessionSearchedList[myCookie.Value] = searchedItems
-	// deep copy the item to mapSessionSearchList
-	copy(mapSessionSearchedList[myCookie.Value], searchedItems)
+	if req.Method != http.MethodPost {
+		searchedItems, err := bizListSearchItems(name, itemDescription, searchLogic)
+		mapSessionSearchedList[myCookie.Value] = make([]Item, len(searchedItems))
+		//mapSessionSearchedList[myCookie.Value] = searchedItems
+		// deep copy the item to mapSessionSearchList
+		copy(mapSessionSearchedList[myCookie.Value], searchedItems)
 
-	if err != nil {
-		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
-		fmt.Println("Error in bizListSearchItems:", err)
-		return
+		fmt.Println("SearchedList Stored: ", myCookie.Value, mapSessionSearchedList[myCookie.Value])
+		if err != nil {
+			http.Error(res, "Internal Server Error", http.StatusInternalServerError)
+			fmt.Println("Error in bizListSearchItems:", err)
+			return
+		}
 	}
 
 	var list []string
