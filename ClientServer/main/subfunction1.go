@@ -229,7 +229,9 @@ func showSearchList(res http.ResponseWriter, req *http.Request) {
 
 	searchedItems, err := bizListSearchItems(name, itemDescription, searchLogic)
 	mapSessionSearchedList[myCookie.Value] = make([]Item, len(searchedItems))
-	mapSessionSearchedList[myCookie.Value] = searchedItems
+	//mapSessionSearchedList[myCookie.Value] = searchedItems
+	// deep copy the item to mapSessionSearchList
+	copy(mapSessionSearchedList[myCookie.Value], searchedItems)
 
 	if err != nil {
 		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
@@ -394,6 +396,7 @@ func withdrawItem(res http.ResponseWriter, req *http.Request) {
 	myCookie, _ := req.Cookie("myCookie")
 
 	selectedList := mapSessionSelect[myCookie.Value]
+
 	fmt.Println("selected for withdrawal", selectedList)
 
 	// to set selected items (from MyTraylList) to "withdraw" state

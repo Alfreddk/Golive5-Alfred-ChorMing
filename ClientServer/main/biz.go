@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"sort"
@@ -91,15 +92,28 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 
 	// pick up the selected items, only display item ID, name and description
 	userID := mapSessions[uuid]
+	var item string
 	var err error
 	for _, v := range selectedItem {
 		intVar, _ := strconv.Atoi(v) // use this to get the integer value of the index
-		item := fmt.Sprintf("Item:%d, ID: %s, Name: %s, Description: %s", intVar+1, mapSessionSearchedList[uuid][intVar].ID,
+		item = fmt.Sprintf("Item:%d, ID: %s, Name: %s, Description: %s", intVar+1, mapSessionSearchedList[uuid][intVar].ID,
 			mapSessionSearchedList[uuid][intVar].Name, mapSessionSearchedList[uuid][intVar].Description)
 
 		err = bizSetItemStateToGiven(userID, mapSessionSearchedList[uuid][intVar].ID)
+
+		fmt.Println("Error", err)
+
+		// Reform the item message if there is error
 		if err != nil {
-			return msg, err
+			if err == ErrorItemAlreadyGiven {
+				item = fmt.Sprintf("Item:%d, ID: %s, Name: %s, Sorry: %s", intVar+1, mapSessionSearchedList[uuid][intVar].ID,
+					mapSessionSearchedList[uuid][intVar].Name, err)
+			} else if err == ErrorItemAlreadyWithdrawn {
+				item = fmt.Sprintf("Item:%d, ID: %s, Name: %s, Sorry: %s", intVar+1, mapSessionSearchedList[uuid][intVar].ID,
+					mapSessionSearchedList[uuid][intVar].Name, err)
+			} else {
+				return msg, err
+			}
 		}
 		msg = append(msg, item)
 	}
@@ -107,18 +121,30 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 	return msg, nil
 }
 
+var ErrorItemAlreadyGiven error = errors.New("Item is already Given Away")
+var ErrorItemAlreadyWithdrawn error = errors.New("Item is already withdrawn")
+var ErrorItemStateInvalid error = errors.New("Item is in Invalid State")
+
 // bizSetItemStateToGiven
 // Update the state of the item in slice and in SQL DB.
 func bizSetItemStateToGiven(userID string, id string) error {
 	//	fmt.Println("ID:", id)
 	for i, v := range Items {
 		if v.ID == id { // search for ID to match item
-			Items[i].State = stateGiven // use index to change the state directly local DB
-			Items[i].GetterUsername = userID
-			err := editItem(Items[i]) // update remote DB with the change
-			if err != nil {
-				fmt.Println("Error in bizSetItemStateToGiven", err)
-				return err
+			if Items[i].State == stateToGive {
+				Items[i].State = stateGiven // use index to change the state directly local DB
+				Items[i].GetterUsername = userID
+				err := editItem(Items[i]) // update remote DB with the change
+				if err != nil {
+					fmt.Println("Error in bizSetItemStateToGiven", err)
+					return err
+				}
+			} else if Items[i].State == stateGiven {
+				return ErrorItemAlreadyGiven
+			} else if Items[i].State == stateWithdrawn {
+				return ErrorItemAlreadyWithdrawn
+			} else {
+				return ErrorItemStateInvalid
 			}
 			break // match found, so can break
 		}
