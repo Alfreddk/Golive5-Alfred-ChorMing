@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -40,8 +39,8 @@ type itemType struct {
 	Description string
 }
 
-var mutex1 sync.Mutex
-var mutex2 sync.Mutex
+//var mutex1 sync.Mutex
+//var mutex2 sync.Mutex
 
 // session variables
 var mapSessionName = map[string]string{}
@@ -405,7 +404,7 @@ func withdrawItem(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("selected for withdrawal", selectedList)
 
 	// to set selected items (from MyTraylList) to "withdraw" state
-	msg, err := bizWithdrawItems(mapSessionMyTrayList[myCookie.Value], selectedList)
+	msg, err := bizWithdrawItems(mutex1, mapSessionMyTrayList[myCookie.Value], selectedList)
 	if err != nil {
 		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error in bizWithdrawItems :", err)
@@ -460,7 +459,7 @@ func giveItem(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("Last Menu :", lastmenu)
 
 	// Process the item for listing, change item to "togive" state
-	msg, err := bizGiveItem(name, description, username)
+	msg, err := bizGiveItem(mutex1, name, description, username)
 	if err != nil {
 		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error in bizGiveItem :", err)
@@ -489,7 +488,7 @@ func removeFromMyTray(res http.ResponseWriter, req *http.Request) {
 	// Undisplayed the picked list from Tray (Given Items, Gotten Items, Withdrawn Items)
 	// This common for all 3 group, so check the tray to know which group
 
-	msg, err := bizRemoveFromTray(mapSessionMyTrayList[myCookie.Value], selectedList, tray)
+	msg, err := bizRemoveFromTray(mutex1, mapSessionMyTrayList[myCookie.Value], selectedList, tray)
 	if err != nil {
 		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error in bizRemoveFromTray:", err)

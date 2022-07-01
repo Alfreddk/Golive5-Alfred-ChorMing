@@ -7,10 +7,14 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
 )
+
+// Use mutex1 to lock local DB and remote DB to ensure atomic operation
+var mutex1 sync.Mutex
 
 // Items stores the items record at package level on local database on runtime memory.
 var Items []Item
@@ -20,11 +24,14 @@ var cfg mysql.Config // configuration for DSN.
 // bizInit initialisation for business logic.
 func bizInit() {
 
-	bizItemListInit()
+	bizItemListInit(mutex1)
 }
 
 // bizItemListInit Iniitialises items record on local database on runtime memory.
-func bizItemListInit() {
+func bizItemListInit(mu sync.Mutex) {
+
+	mu.Lock()
+	defer mu.Unlock()
 
 	// Initialise items record onto a slice.
 	items, err := getAllItems()
@@ -100,7 +107,7 @@ func bizGetListedItems(uuid string, selectedItem []string) ([]string, error) {
 	for _, v := range selectedItem {
 		intVar, _ := strconv.Atoi(v) // use this to get the integer value of the index
 
-		err = bizSetItemStateToGiven(userID, mapSessionSearchedList[uuid][intVar].ID)
+		err = bizSetItemStateToGiven(mutex1, userID, mapSessionSearchedList[uuid][intVar].ID)
 
 		fmt.Println("Error", err)
 
@@ -138,8 +145,11 @@ var ErrorItemStateInvalid error = errors.New("Item is in Invalid State")
 
 // bizSetItemStateToGiven
 // Update the state of the item in slice and in SQL DB.
-func bizSetItemStateToGiven(userID string, id string) error {
+func bizSetItemStateToGiven(mu sync.Mutex, userID string, id string) error {
 	//	fmt.Println("ID:", id)
+	mu.Lock()
+	defer mu.Unlock()
+
 	var count int = 0
 	for i, v := range Items {
 		if v.ID == id { // search for ID to match item
@@ -169,7 +179,7 @@ func bizSetItemStateToGiven(userID string, id string) error {
 // withdraw a list of selected items
 // items is not displayed list
 // selected is the selected items
-func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
+func bizWithdrawItems(mu sync.Mutex, items []Item, selectedItem []string) ([]string, error) {
 	var msg []string
 	var withdrawList []Item
 	withdrawList = make([]Item, len(selectedItem))
@@ -186,6 +196,9 @@ func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 
 	fmt.Println("withdraw List =", withdrawList)
 	// Set the state to withdrawn for the selected items
+	mu.Lock()
+	defer mu.Unlock()
+
 	for _, v := range withdrawList {
 
 		// State change to local DB
@@ -217,12 +230,15 @@ func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 
 // bizGiveItem allows user to list an item by providing a item name and description.
 // Item listed will be added to backend server mysql database
-func bizGiveItem(name string, description string, username string) ([]string, error) {
+func bizGiveItem(mu sync.Mutex, name string, description string, username string) ([]string, error) {
 
 	currentTime := time.Now()
 	date := currentTime.Format("2006-01-02")
 
 	item := Item{"", name, description, 0, 0, 0, username, "", 0, date}
+
+	mu.Lock()
+	defer mu.Unlock()
 
 	var msg []string
 	err := addNewItem(item) // add item to items table in mysql
@@ -244,7 +260,7 @@ func bizGiveItem(name string, description string, username string) ([]string, er
 
 // bizRemoveFromTray
 // Make these Item from Tray not visible in the Tray
-func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]string, error) {
+func bizRemoveFromTray(mu sync.Mutex, items []Item, selectedList []string, tray string) ([]string, error) {
 	fmt.Println("Tray", tray)
 
 	fmt.Println("Here!!")
@@ -262,6 +278,9 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 			intVar, _ := strconv.Atoi(v)
 			hideList = append(hideList, items[intVar])
 		}
+
+		mu.Lock()
+		defer mu.Unlock()
 
 		// Set up hide flag in local db
 		for _, v := range hideList {

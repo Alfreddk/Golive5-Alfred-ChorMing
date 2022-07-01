@@ -270,6 +270,9 @@ func signup(res http.ResponseWriter, req *http.Request) {
 			// initialise myUser
 			myUser = User{"", username, string(bPassword), name, address, postalcode, telnumber, "user", ""}
 
+			mutex2.Lock()
+			defer mutex2.Unlock()
+
 			err = addNewUser(myUser)
 			if err != nil {
 				Trace.Println(err)
@@ -437,6 +440,9 @@ func deleteUser(res http.ResponseWriter, req *http.Request) {
 		// delete user from backend server mysql database.
 		var myUser User
 		myUser = mapUsers[userName]
+		mutex2.Lock()
+		defer mutex2.Unlock()
+
 		err := delUser(myUser)
 		if err != nil {
 			Trace.Println(err)
@@ -551,6 +557,8 @@ func updateLastVist(uuid string, status string) {
 		userLastVisit[username] = status
 
 		var myUser User
+		mutex2.Lock()
+		defer mutex2.Unlock()
 
 		myUser = mapUsers[username]
 		myUser.LastLogin = status
