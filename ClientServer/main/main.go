@@ -270,6 +270,8 @@ func signup(res http.ResponseWriter, req *http.Request) {
 			// initialise myUser
 			myUser = User{"", username, string(bPassword), name, address, postalcode, telnumber, "user", ""}
 
+			mutex.Lock()
+
 			err = addNewUser(myUser)
 			if err != nil {
 				Trace.Println(err)
@@ -280,11 +282,13 @@ func signup(res http.ResponseWriter, req *http.Request) {
 				Trace.Println(err)
 			}
 
+			mutex.Unlock()
+
 			for _, v := range users {
 				mapUsers[v.Username] = v
 			}
 
-			fmt.Println(mapUsers)
+			//fmt.Println(mapUsers)
 
 			userLastVisit[username] = "None"
 
@@ -426,24 +430,35 @@ func deleteUser(res http.ResponseWriter, req *http.Request) {
 
 		for _, v := range Items {
 			if v.GiverUsername == userName && v.State == stateToGive {
+
+				mutex.Lock()
+
 				v.State = stateInvalid // change all "togive" state items listed by this user to "invalid" state on runtime memory Items slice.
 				err := editItem(v)     // change all "togive" state items listed by this user to "invalid" state on backend mysql database.
 				if err != nil {
 					Trace.Println(err)
 				}
+
+				mutex.Unlock()
+
 			}
 		}
 
-		// delete user from backend server mysql database.
 		var myUser User
 		myUser = mapUsers[userName]
+
+		mutex.Lock()
+
+		// delete user from runtime mapUsers.
+		delete(mapUsers, userName)
+
+		// delete user from backend server mysql database.
 		err := delUser(myUser)
 		if err != nil {
 			Trace.Println(err)
 		}
 
-		// delete user from runtime mapUsers.
-		delete(mapUsers, userName)
+		mutex.Unlock()
 
 		// redirect to browse Venue List
 		http.Redirect(res, req, "/showDeletedUser", http.StatusSeeOther) // alfred 24.06.2022: No longer tracking deleted users. this page is no longer relevant. CM to advise.
@@ -554,12 +569,17 @@ func updateLastVist(uuid string, status string) {
 
 		myUser = mapUsers[username]
 		myUser.LastLogin = status
+
+		mutex.Lock()
+
 		mapUsers[username] = myUser // Update user's lastlogin record on runtime memory.
 
 		err := editUser(myUser) // Update user's lastlogin record to backend server.
 		if err != nil {
 			Trace.Println(err)
 		}
+
+		mutex.Unlock()
 
 	}
 

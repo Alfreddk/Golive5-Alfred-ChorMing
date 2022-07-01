@@ -7,10 +7,13 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
 )
+
+var mutex sync.Mutex
 
 // Items stores the items record at package level on local database on runtime memory.
 var Items []Item
@@ -144,14 +147,20 @@ func bizSetItemStateToGiven(userID string, id string) error {
 	for i, v := range Items {
 		if v.ID == id { // search for ID to match item
 			if Items[i].State == stateToGive {
+
+				mutex.Lock()
+
 				Items[i].State = stateGiven // use index to change the state directly local DB
 				Items[i].GetterUsername = userID
 				err := editItem(Items[i]) // update remote DB with the change
-				count++
 				if err != nil {
 					fmt.Println("Error in bizSetItemStateToGiven", err)
 					return err
 				}
+
+				mutex.Unlock()
+
+				count++
 			} else if Items[i].State == stateGiven {
 				return ErrorItemAlreadyGiven
 			} else if Items[i].State == stateWithdrawn {
@@ -188,6 +197,8 @@ func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 	// Set the state to withdrawn for the selected items
 	for _, v := range withdrawList {
 
+		mutex.Lock()
+
 		// State change to local DB
 		setStateWithdraw(v.ID) // set item to withdrawn
 
@@ -199,6 +210,9 @@ func bizWithdrawItems(items []Item, selectedItem []string) ([]string, error) {
 			Trace.Println(err)
 			return msg, err
 		}
+
+		mutex.Unlock()
+
 	}
 
 	fmt.Println("withdraw:", withdrawList)
@@ -225,6 +239,9 @@ func bizGiveItem(name string, description string, username string) ([]string, er
 	item := Item{"", name, description, 0, 0, 0, username, "", 0, date}
 
 	var msg []string
+
+	mutex.Lock()
+
 	err := addNewItem(item) // add item to items table in mysql
 	if err != nil {
 		fmt.Println(err)
@@ -235,6 +252,8 @@ func bizGiveItem(name string, description string, username string) ([]string, er
 	if err != nil {
 		Trace.Println(err)
 	}
+
+	mutex.Unlock()
 
 	msg = append(msg, "Item : "+name+", "+description+"  ===> To-Give Tray")
 
@@ -265,6 +284,9 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 
 		// Set up hide flag in local db
 		for _, v := range hideList {
+
+			mutex.Lock()
+
 			hideItem(tray, v.ID)
 			switch tray {
 			case "myTrayGiven":
@@ -281,6 +303,9 @@ func bizRemoveFromTray(items []Item, selectedList []string, tray string) ([]stri
 				fmt.Println("Error :", err)
 				return msg, err
 			}
+
+			mutex.Unlock()
+
 		}
 		num = fmt.Sprintf("Number of items removed from Tray = %d", len(selectedList))
 	}

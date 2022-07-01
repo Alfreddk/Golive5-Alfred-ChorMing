@@ -400,12 +400,12 @@ func withdrawItem(res http.ResponseWriter, req *http.Request) {
 	}
 	myCookie, _ := req.Cookie("myCookie")
 
-	selectedList := mapSessionSelect[myCookie.Value]
+	selectedList := mapSessionSelect[myCookie.Value] // need to deep copy here as well right? seems like all selectedList needs to be deep copied...
 
 	fmt.Println("selected for withdrawal", selectedList)
 
 	// to set selected items (from MyTraylList) to "withdraw" state
-	msg, err := bizWithdrawItems(mapSessionMyTrayList[myCookie.Value], selectedList)
+	msg, err := bizWithdrawItems(mapSessionMyTrayList[myCookie.Value], selectedList) // need to check for state transition as well...
 	if err != nil {
 		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println("Error in bizWithdrawItems :", err)

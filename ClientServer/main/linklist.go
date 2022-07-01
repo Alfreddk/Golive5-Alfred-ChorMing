@@ -4,10 +4,9 @@ package main
 
 import (
 	"errors"
-	"sync"
 )
 
-var mutex sync.Mutex
+//var mutex sync.Mutex
 
 // Error messages for linked list operation
 var (
