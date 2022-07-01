@@ -399,7 +399,9 @@ func withdrawItem(res http.ResponseWriter, req *http.Request) {
 	}
 	myCookie, _ := req.Cookie("myCookie")
 
-	selectedList := mapSessionSelect[myCookie.Value]
+	//selectedList := mapSessionSelect[myCookie.Value]
+	selectedList := make([]string, len(mapSessionSelect[myCookie.Value]))
+	copy(selectedList, mapSessionSelect[myCookie.Value])
 
 	fmt.Println("selected for withdrawal", selectedList)
 
@@ -426,7 +428,11 @@ func getListedItems(res http.ResponseWriter, req *http.Request) {
 	myCookie, _ := req.Cookie("myCookie")
 
 	lastmenu := mapSessionPreviousMenu[myCookie.Value]
-	selectedList := mapSessionSelect[myCookie.Value]
+
+	//selectedList := mapSessionSelect[myCookie.Value]
+	selectedList := make([]string, len(mapSessionSelect[myCookie.Value]))
+	copy(selectedList, mapSessionSelect[myCookie.Value])
+
 	fmt.Println("Last Menu :", lastmenu)
 	fmt.Println("selected to get :", selectedList)
 
@@ -481,7 +487,10 @@ func removeFromMyTray(res http.ResponseWriter, req *http.Request) {
 	myCookie, _ := req.Cookie("myCookie")
 
 	tray := mapSessionPreviousMenu[myCookie.Value]
-	selectedList := mapSessionSelect[myCookie.Value]
+	//selectedList := mapSessionSelect[myCookie.Value]
+	selectedList := make([]string, len(mapSessionSelect[myCookie.Value]))
+	copy(selectedList, mapSessionSelect[myCookie.Value])
+
 	fmt.Println("Tray to Remove from View", tray)
 	fmt.Println("selected for withdrawal", selectedList)
 
@@ -548,7 +557,9 @@ func viewGiverDetails(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	myCookie, _ := req.Cookie("myCookie")
-	selectedList := mapSessionSelect[myCookie.Value]
+	//selectedList := mapSessionSelect[myCookie.Value]
+	selectedList := make([]string, len(mapSessionSelect[myCookie.Value]))
+	copy(selectedList, mapSessionSelect[myCookie.Value])
 
 	fmt.Println("Selected :", selectedList)
 	// Get the items picked and Giver's details
@@ -573,7 +584,10 @@ func viewGetterDetails(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	myCookie, _ := req.Cookie("myCookie")
-	selectedList := mapSessionSelect[myCookie.Value]
+	//selectedList := mapSessionSelect[myCookie.Value]
+	selectedList := make([]string, len(mapSessionSelect[myCookie.Value]))
+	copy(selectedList, mapSessionSelect[myCookie.Value])
+
 	fmt.Println("Selected :", selectedList)
 	msg1, err := bizGetItemWithGetterDetails(mapSessionMyTrayList[myCookie.Value], selectedList)
 	if err != nil {

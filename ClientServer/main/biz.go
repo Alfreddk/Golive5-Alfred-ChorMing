@@ -180,7 +180,7 @@ func bizSetItemStateToGiven(mu sync.Mutex, userID string, id string) error {
 // items is not displayed list
 // selected is the selected items
 func bizWithdrawItems(mu sync.Mutex, items []Item, selectedItem []string) ([]string, error) {
-	var msg []string
+
 	var withdrawList []Item
 	withdrawList = make([]Item, len(selectedItem))
 
@@ -199,30 +199,35 @@ func bizWithdrawItems(mu sync.Mutex, items []Item, selectedItem []string) ([]str
 	mu.Lock()
 	defer mu.Unlock()
 
+	var msg []string
+	var item string
+	var count int = 0
 	for _, v := range withdrawList {
 
 		// State change to local DB
-		setStateWithdraw(v.ID) // set item to withdrawn
+		err := setStateWithdraw(v.ID)
+		if err == nil {
+			// state change to SQL DB to stateWithdrawn
+			v.State = stateWithdrawn
 
-		// state change to SQL DB to stateWithdrawn
-		v.State = stateWithdrawn
-
-		err := editItem(v)
-		if err != nil {
-			Trace.Println(err)
-			return msg, err
+			err := editItem(v)
+			if err != nil {
+				Trace.Println(err)
+				return msg, err
+			}
+			count++
+			item = fmt.Sprintf("item ID: %v, is withdrawn", v.ID)
+		} else {
+			item = fmt.Sprintf("item ID:%v Withdrawal Error: %s", v.ID, err.Error())
 		}
+		msg = append(msg, item)
 	}
 
 	fmt.Println("withdraw:", withdrawList)
 
-	num := fmt.Sprintf("Number of items Withdrawn = %d", len(selectedItem))
-	msg = append(msg, num)
-
-	for _, v := range selectedItem {
-		item := fmt.Sprintf("item %v, is withdrawn", v)
-		msg = append(msg, item)
-	}
+	// move msg to 1 position to the right
+	msg = append(msg[:1], msg[0:]...)
+	msg[0] = fmt.Sprintf("Number of items Withdrawn = %d", count)
 
 	return msg, nil
 
@@ -475,13 +480,24 @@ func hideItem(tray string, id string) {
 	}
 }
 
-// setStateWithdraw sets the state of the item that match ID to stateWithdrawn
-func setStateWithdraw(id string) {
+var ErrorFailedWithdrwal error = errors.New("Item failed withdrawal")
+var ErrorItemIDNotFound error = errors.New("Item ID cannot be found")
 
+// setStateWithdraw sets the state of the item that match ID to stateWithdrawn
+func setStateWithdraw(id string) error {
+
+	var err error
 	for i, v := range Items {
+		// found item
 		if v.ID == id {
-			Items[i].State = stateWithdrawn
-			break
+			if Items[i].State == stateToGive {
+				Items[i].State = stateWithdrawn
+				err = nil
+			} else {
+				err = ErrorFailedWithdrwal
+			}
+			return err
 		}
 	}
+	return ErrorItemIDNotFound
 }
